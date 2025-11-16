@@ -1,0 +1,66 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: nft_web
+    working_dir: /app/nft_lottery
+    volumes:
+      - ./nft_lottery:/app/nft_lottery
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    command: bash -c "python manage.py migrate --noinput && gunicorn nft_lottery.wsgi:application --bind 0.0.0.0:8000"
+
+  celery:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: nft_celery
+    working_dir: /app/nft_lottery
+    volumes:
+      - ./nft_lottery:/app/nft_lottery
+    env_file:
+      - .env
+    depends_on:
+      - web
+      - redis
+    command: celery -A nft_lottery worker -l info
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: nft_celery_beat
+    working_dir: /app/nft_lottery
+    volumes:
+      - ./nft_lottery:/app/nft_lottery
+    env_file:
+      - .env
+    depends_on:
+      - web
+      - redis
+    command: celery -A nft_lottery beat -l info
+
+  db:
+    image: postgres:15-alpine
+    container_name: nft_db
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    container_name: nft_redis
+    ports:
+      - "6379:6379"
+    restart: always
+
+volumes:
+  postgres_data:
