@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environment
+../.env
+venv/
+env/
+
+# Django stuff
+static/
+media/
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+
+# Byte-compiled
+*.pyc
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+
+# Redis/Docker
+redis-data/
+postgres-data/
+
+# Docker
+*.pid
+*.tar
+*.log
+
+# Local settings
+local_settings.py
