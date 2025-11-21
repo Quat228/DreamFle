@@ -6,6 +6,8 @@ services:
     container_name: nft_web
     working_dir: /app/nft_lottery
     volumes:
+      - .:/app
+      - ./staticfiles:/app/staticfiles
       - ./nft_lottery:/app/nft_lottery
     env_file:
       - .env
@@ -14,7 +16,7 @@ services:
     depends_on:
       - db
       - redis
-    command: bash -c "python manage.py migrate --noinput && gunicorn nft_lottery.wsgi:application --bind 0.0.0.0:8000"
+    command: bash -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
 
   celery:
     build:
