@@ -29,12 +29,10 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     # Apps
+    "products",
     "users",
-    "nft",
     "payments",
     "lottery",
-    "referrals",
-    "common",
 ]
 
 MIDDLEWARE = [
