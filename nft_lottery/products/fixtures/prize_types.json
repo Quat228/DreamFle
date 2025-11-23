@@ -1,0 +1,29 @@
+[
+  {
+    "model": "products.prizetype",
+    "pk": 1,
+    "fields": {
+      "name": "NFT Prize",
+      "code": "nft_prize",
+      "description": "NFT prize for raffle"
+    }
+  },
+  {
+    "model": "products.prizetype",
+    "pk": 2,
+    "fields": {
+      "name": "Physical Prize",
+      "code": "physical_prize",
+      "description": "Physical item as a raffle prize"
+    }
+  },
+  {
+    "model": "products.prizetype",
+    "pk": 3,
+    "fields": {
+      "name": "Digital Prize",
+      "code": "digital_prize",
+      "description": "Digital prize (promo codes, subscriptions)"
+    }
+  }
+]

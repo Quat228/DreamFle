@@ -1,0 +1,41 @@
+[
+  {
+    "model": "products.product",
+    "pk": 1,
+    "fields": {
+      "name": "Starter Token Pack",
+      "description": "100 tokens starter pack",
+      "type": 4,
+      "price_credits": "1.00",
+      "reward_tokens": "100.00",
+      "image": null,
+      "metadata": {}
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": 2,
+    "fields": {
+      "name": "Pro Token Pack",
+      "description": "500 tokens bundle",
+      "type": 4,
+      "price_credits": "4.00",
+      "reward_tokens": "500.00",
+      "image": null,
+      "metadata": {}
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": 3,
+    "fields": {
+      "name": "Ultimate Token Pack",
+      "description": "1500 tokens megabundle",
+      "type": 4,
+      "price_credits": "10.00",
+      "reward_tokens": "1500.00",
+      "image": null,
+      "metadata": {}
+    }
+  }
+]

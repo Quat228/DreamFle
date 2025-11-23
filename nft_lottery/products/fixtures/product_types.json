@@ -1,0 +1,38 @@
+[
+  {
+    "model": "products.producttype",
+    "pk": 1,
+    "fields": {
+      "name": "NFT",
+      "code": "nft",
+      "description": "Non-fungible token product"
+    }
+  },
+  {
+    "model": "products.producttype",
+    "pk": 2,
+    "fields": {
+      "name": "Physical Product",
+      "code": "physical",
+      "description": "Real-world physical item"
+    }
+  },
+  {
+    "model": "products.producttype",
+    "pk": 3,
+    "fields": {
+      "name": "Digital Product",
+      "code": "digital",
+      "description": "Digital item or service"
+    }
+  },
+  {
+    "model": "products.producttype",
+    "pk": 4,
+    "fields": {
+      "name": "Token Pack",
+      "code": "token_pack",
+      "description": "Credits → Tokens package"
+    }
+  }
+]
