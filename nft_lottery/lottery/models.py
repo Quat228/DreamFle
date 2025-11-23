@@ -16,6 +16,9 @@ class RaffleType(models.Model):
     code = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True)
 
+    def str(self):
+        return f"{self.name} ({self.code})"
+
 
 class Raffle(models.Model):
     name = models.CharField(max_length=150)
