@@ -2,13 +2,9 @@ services:
   web:
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: Dockerfile
     container_name: nft_web
     working_dir: /app/nft_lottery
-    volumes:
-      - .:/app
-      - ./staticfiles:/app/staticfiles
-      - ./nft_lottery:/app/nft_lottery
     env_file:
       - .env
     ports:
@@ -16,35 +12,33 @@ services:
     depends_on:
       - db
       - redis
+    volumes:
+      - ./staticfiles:/app/nft_lottery/static
     command: bash -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
 
   celery:
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: Dockerfile
     container_name: nft_celery
     working_dir: /app/nft_lottery
-    volumes:
-      - ./nft_lottery:/app/nft_lottery
     env_file:
       - .env
     depends_on:
-      - web
+      - db
       - redis
     command: celery -A nft_lottery worker -l info
 
   celery_beat:
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: Dockerfile
     container_name: nft_celery_beat
     working_dir: /app/nft_lottery
-    volumes:
-      - ./nft_lottery:/app/nft_lottery
     env_file:
       - .env
     depends_on:
-      - web
+      - db
       - redis
     command: celery -A nft_lottery beat -l info
 

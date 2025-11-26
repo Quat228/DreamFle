@@ -1,0 +1,147 @@
+.raffle-detail {
+  padding-bottom: 20px;
+}
+
+.loading,
+.error-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.error-state p {
+  margin-bottom: 16px;
+  color: var(--tg-theme-hint-color, #999999);
+}
+
+.raffle-hero-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 0;
+  overflow: hidden;
+  background: var(--tg-theme-bg-color, #ffffff);
+  margin: -16px -16px 16px -16px;
+}
+
+.raffle-hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rarity-badge-large {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 8px 16px;
+  border-radius: 16px;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.raffle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.raffle-header h1 {
+  margin: 0;
+  font-size: 24px;
+  flex: 1;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.finished {
+  background: #f44336;
+  color: white;
+}
+
+.status-badge.inactive {
+  background: var(--tg-theme-hint-color, #e0e0e0);
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.raffle-description {
+  margin: 0;
+  color: var(--tg-theme-hint-color, #666666);
+  line-height: 1.6;
+}
+
+.prize-info {
+  margin-top: 12px;
+}
+
+.prize-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color, #000000);
+  margin-bottom: 8px;
+}
+
+.prize-description {
+  margin: 0 0 12px 0;
+  color: var(--tg-theme-hint-color, #666666);
+  line-height: 1.6;
+}
+
+.prize-value {
+  padding: 8px 12px;
+  background: var(--tg-theme-button-color, #3390ec);
+  color: white;
+  border-radius: 8px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-size: 11px;
+  color: var(--tg-theme-hint-color, #999999);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.action-section {
+  margin-top: 24px;
+  padding: 0 16px;
+}
+
+.insufficient-tokens {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--tg-theme-hint-color, #999999);
+}
+

@@ -1,4 +1,5 @@
 import json
+import logging
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,31 +10,44 @@ from core.telegram_auth import parse_and_validate_init_data
 from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 class TelegramAuthView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        logger.info("Telegram auth request received")
+        # Debug: log all headers
+        logger.info(f"Request headers: {dict(request.headers)}")
         # Вытаскиваем Authorization header
         auth_header = request.headers.get("Authorization", "")
+        logger.info(f"Authorization header received: '{auth_header[:50]}...' (length: {len(auth_header)})")
         if not auth_header.startswith("tma "):
-            return Response({"detail": "Authorization header missing or invalid"}, status=400)
+            logger.warning(f"Invalid Authorization header format. Received: '{auth_header[:100]}'")
+            return Response({"detail": "Authorization header missing or invalid. Expected format: 'tma <initData>'"}, status=400)
 
         init_data_raw = auth_header[4:]  # удаляем "tma "
+        logger.debug("Processing initData for Telegram authentication")
 
         try:
             params = parse_and_validate_init_data(init_data_raw)
         except Exception as e:
+            logger.error(f"Telegram initData validation failed: {str(e)}")
             return Response({"detail": str(e)}, status=400)
 
         # user параметр приходит как JSON строка
         user_json = params.get("user")
         if not user_json:
+            logger.error("user parameter missing in initData")
             return Response({"detail": "user missing in initData"}, status=400)
 
-        user_data = json.loads(user_json)
-        telegram_id = user_data["id"]
+        try:
+            user_data = json.loads(user_json)
+            telegram_id = user_data["id"]
+        except (json.JSONDecodeError, KeyError) as e:
+            logger.error(f"Failed to parse user data from initData: {str(e)}")
+            return Response({"detail": f"Invalid user data in initData: {str(e)}"}, status=400)
 
         # Ищем или создаём пользователя
         user, created = User.objects.get_or_create(
@@ -42,15 +56,21 @@ class TelegramAuthView(APIView):
                 "username": user_data.get("username") or f"user_{telegram_id}"
             }
         )
+        if created:
+            logger.info(f"New user created: telegram_id={telegram_id}, username={user.username}")
+        else:
+            logger.info(f"Existing user authenticated: telegram_id={telegram_id}, username={user.username}")
 
         # Обновляем, если поменялся username
         if user.username != user_data.get("username") and user_data.get("username"):
             user.username = user_data["username"]
             user.save()
+            logger.info(f"Updated username for user {telegram_id}")
 
         # Генерируем JWT
         refresh = RefreshToken.for_user(user)
         access = str(refresh.access_token)
+        logger.info(f"JWT tokens generated for user {telegram_id}")
 
         return Response({
             "access": access,

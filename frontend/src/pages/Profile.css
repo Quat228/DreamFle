@@ -1,0 +1,223 @@
+.profile {
+  padding-bottom: 20px;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.profile-header h1 {
+  font-size: 32px;
+  margin: 0;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--tg-theme-hint-color, #999999);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.empty-state p {
+  margin: 8px 0;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--tg-theme-button-color, #3390ec);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.profile-details {
+  flex: 1;
+}
+
+.profile-details h2 {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.profile-id {
+  margin: 0;
+  font-size: 14px;
+  color: var(--tg-theme-hint-color, #999999);
+}
+
+.balances-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.balance-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--tg-theme-bg-color, #ffffff);
+  border-radius: 12px;
+}
+
+.balance-icon {
+  font-size: 32px;
+}
+
+.balance-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.balance-label {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #999999);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.balance-amount {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.referral-section {
+  margin-top: 12px;
+}
+
+.referral-code {
+  margin-bottom: 16px;
+}
+
+.referral-label {
+  display: block;
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #999999);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.referral-code-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.referral-code-display code {
+  flex: 1;
+  padding: 12px;
+  background: var(--tg-theme-bg-color, #ffffff);
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 14px;
+  color: var(--tg-theme-text-color, #000000);
+  border: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+}
+
+.referral-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--tg-theme-button-color, #3390ec);
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #999999);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.referrals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.referral-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--tg-theme-bg-color, #ffffff);
+  border-radius: 8px;
+}
+
+.referral-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--tg-theme-button-color, #3390ec);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.referral-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.referral-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.referral-date {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #999999);
+}
+
+.profile-actions {
+  margin-top: 24px;
+  padding: 0 16px;
+}
+
