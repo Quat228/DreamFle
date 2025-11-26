@@ -1,0 +1,121 @@
+.my-entries {
+  padding-bottom: 20px;
+}
+
+.entries-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.entries-header h1 {
+  font-size: 32px;
+  margin: 0 0 8px 0;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.subtitle {
+  color: var(--tg-theme-hint-color, #999999);
+  font-size: 16px;
+  margin: 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--tg-theme-hint-color, #999999);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.empty-state p {
+  margin: 8px 0;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.empty-hint {
+  color: var(--tg-theme-hint-color, #999999);
+  font-size: 14px;
+}
+
+.entries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.entry-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.entry-header h3 {
+  margin: 0;
+  font-size: 18px;
+  flex: 1;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.entry-date {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #999999);
+}
+
+.entry-prize {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--tg-theme-bg-color, #ffffff);
+  border-radius: 8px;
+}
+
+.prize-label {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #666666);
+}
+
+.prize-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.entry-cost {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #999999);
+}
+
+.entry-status {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.entry-status.winner {
+  background: #4caf50;
+  color: white;
+}
+
+.entry-status.lost {
+  background: var(--tg-theme-hint-color, #e0e0e0);
+  color: var(--tg-theme-text-color, #000000);
+}
+

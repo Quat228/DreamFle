@@ -1,0 +1,27 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NFT Lottery Mini App</title>
+    
+    {% if css_path %}
+    <link rel="stylesheet" href="{% static css_path %}" />
+    {% endif %}
+    
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  </head>
+
+  <body>
+    <div id="root">
+      <div style="padding: 20px; text-align: center;">
+        <h1>🎰 NFT Lottery</h1>
+        <p>Loading...</p>
+      </div>
+    </div>
+    <script type="module" src="{% static js_path %}"></script>
+  </body>
+</html>
