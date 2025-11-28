@@ -4,37 +4,11 @@
     "pk": 1,
     "fields": {
       "type": 1,
-      "name": "Rare Dragon NFT",
-      "description": "Limited edition NFT",
-      "image": null,
-      "rarity": "rare",
-      "value_estimate": "150.00",
-      "metadata": {}
-    }
-  },
-  {
-    "model": "products.prize",
-    "pk": 2,
-    "fields": {
-      "type": 2,
       "name": "iPhone 15 Pro",
       "description": "Apple iPhone 15 Pro 128GB",
-      "image": null,
-      "rarity": "epic",
+      "image": "https://m.media-amazon.com/images/I/71Yp3z87X4L._AC_UF894,1000_QL80_.jpg",
+      "rarity": "rare",
       "value_estimate": "999.00",
-      "metadata": {}
-    }
-  },
-  {
-    "model": "products.prize",
-    "pk": 3,
-    "fields": {
-      "type": 3,
-      "name": "1-Year Premium Subscription",
-      "description": "Full year premium access",
-      "image": null,
-      "rarity": "common",
-      "value_estimate": "49.00",
       "metadata": {}
     }
   }

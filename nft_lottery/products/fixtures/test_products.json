@@ -1,0 +1,15 @@
+[
+  {
+    "model": "products.product",
+    "pk": 1,
+    "fields": {
+      "name": "Trump NFT",
+      "description": "Trump as a president",
+      "type": 1,
+      "price_credits": "19.00",
+      "reward_tokens": "665.00",
+      "image": "https://collecttrumpcards.com/images/djt-america-first-hero-mobile-5_1.webp",
+      "metadata": {}
+    }
+  }
+]
