@@ -24,7 +24,7 @@ class Product(models.Model):
     type = models.ForeignKey(ProductType, on_delete=models.PROTECT, related_name="products")
     price_credits = models.DecimalField(max_digits=12, decimal_places=2)
     reward_tokens = models.DecimalField(max_digits=12, decimal_places=2)
-    image = models.URLField(null=True, blank=True)
+    image = models.URLField(max_length=2000, null=True, blank=True)
     metadata = models.JSONField(null=True, blank=True)
 
     def __str__(self):
@@ -44,7 +44,7 @@ class Prize(models.Model):
     type = models.ForeignKey(PrizeType, on_delete=models.PROTECT, related_name="prizes")
     name = models.CharField(max_length=150)
     description = models.TextField(blank=True)
-    image = models.URLField(null=True, blank=True)
+    image = models.URLField(max_length=2000, null=True, blank=True)
     rarity = models.CharField(
         max_length=20,
         choices=RARITY_CHOICES,

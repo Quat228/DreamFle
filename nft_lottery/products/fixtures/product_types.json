@@ -25,14 +25,5 @@
       "code": "digital",
       "description": "Digital item or service"
     }
-  },
-  {
-    "model": "products.producttype",
-    "pk": 4,
-    "fields": {
-      "name": "Token Pack",
-      "code": "token_pack",
-      "description": "Credits → Tokens package"
-    }
   }
 ]

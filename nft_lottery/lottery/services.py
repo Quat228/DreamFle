@@ -149,11 +149,13 @@ def select_winner(raffle):
     )
     
     # Update raffle with selection details
+    raffle.is_active = False
     raffle.is_finished = True
     raffle.end_at = now
     raffle.winner_selection_hash = selection_hash
     raffle.winner_selection_timestamp = now
-    raffle.save(update_fields=['is_finished', 'end_at', 'winner_selection_hash', 'winner_selection_timestamp', 'winner_selection_seed'])
+    raffle.save(update_fields=['is_active', 'is_finished', 'end_at', 'winner_selection_hash',
+                               'winner_selection_timestamp', 'winner_selection_seed'])
     
     return {
         "winner": winner,

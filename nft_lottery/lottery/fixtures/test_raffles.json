@@ -5,16 +5,21 @@
     "fields": {
       "name": "Win iPhone 15 Pro",
       "description": "Premium raffle",
-      "type": 2,
-      "prize": 2,
-      "cost_tokens": "25.00",
-      "min_participants_to_unlock": 50,
+      "type": 1,
+      "prize": 1,
+      "cost_tokens": "600.00",
+      "min_participants_to_unlock": 5,
       "is_active": true,
       "is_finished": false,
       "start_at": null,
       "end_at": null,
       "created_at": "2024-01-01T00:00:00Z",
-      "logic_config": {}
+      "logic_config": {},
+      "unlocked_at": null,
+      "draw_delay_days": 3,
+      "winner_selection_seed": null,
+      "winner_selection_hash": null,
+      "winner_selection_timestamp": null
     }
   }
 ]
