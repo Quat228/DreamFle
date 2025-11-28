@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { HashRouter, MemoryRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Layout from './components/Layout';
-import Welcome from './pages/Welcome';
 import Home from './pages/Home';
 import RaffleDetail from './pages/RaffleDetail';
 import Shop from './pages/Shop';
@@ -44,8 +43,7 @@ function RouterSync({ children }) {
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Welcome />} />
-      <Route path="/raffles" element={<Home />} />
+      <Route path="/" element={<Home />} />
       <Route path="/raffle/:id" element={<RaffleDetail />} />
       <Route path="/shop" element={<Shop />} />
       <Route path="/entries" element={<MyEntries />} />

@@ -23,6 +23,7 @@ class RaffleAdmin(admin.ModelAdmin):
         "cost_tokens",
         "is_active",
         "is_finished",
+        "unlocked_at",
         "start_at",
         "end_at",
     )
@@ -30,7 +31,33 @@ class RaffleAdmin(admin.ModelAdmin):
     list_filter = ("type", "is_active", "is_finished")
     search_fields = ("name", "prize__name")
     inlines = [EntryInline]
-    readonly_fields = ("created_at",)
+    readonly_fields = (
+        "created_at",
+        "unlocked_at",
+        "winner_selection_seed",
+        "winner_selection_hash",
+        "winner_selection_timestamp",
+    )
+    
+    fieldsets = (
+        ("Basic Information", {
+            "fields": ("name", "description", "type", "prize", "cost_tokens")
+        }),
+        ("Unlockable Settings", {
+            "fields": ("min_participants_to_unlock", "draw_delay_days", "unlocked_at")
+        }),
+        ("Status", {
+            "fields": ("is_active", "is_finished", "start_at", "end_at", "created_at")
+        }),
+        ("Winner Selection (Transparency)", {
+            "fields": ("winner_selection_seed", "winner_selection_hash", "winner_selection_timestamp"),
+            "classes": ("collapse",)
+        }),
+        ("Advanced", {
+            "fields": ("logic_config",),
+            "classes": ("collapse",)
+        }),
+    )
 
 
 @admin.register(Winner)

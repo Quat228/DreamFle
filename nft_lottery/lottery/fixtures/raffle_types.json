@@ -3,27 +3,9 @@
     "model": "lottery.raffletype",
     "pk": 1,
     "fields": {
-      "name": "Simple Raffle",
-      "code": "simple",
-      "description": "Basic raffle type"
-    }
-  },
-  {
-    "model": "lottery.raffletype",
-    "pk": 2,
-    "fields": {
       "name": "Unlockable",
       "code": "unlockable",
       "description": "Unlocks after minimum participants"
-    }
-  },
-  {
-    "model": "lottery.raffletype",
-    "pk": 3,
-    "fields": {
-      "name": "Time-Limited",
-      "code": "time",
-      "description": "Ends at a specific time"
     }
   }
 ]

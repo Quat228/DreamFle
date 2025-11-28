@@ -8,7 +8,12 @@
 }
 
 .card.clickable {
-  cursor: pointer;
+  cursor: pointer !important;
+}
+
+.card.clickable,
+.card.clickable * {
+  cursor: pointer !important;
 }
 
 .card.clickable:hover {
@@ -19,4 +24,6 @@
 .card.clickable:active {
   transform: translateY(0);
 }
+
+
 
