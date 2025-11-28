@@ -1,3 +1,4 @@
+import secrets
 from django.db import models
 
 from products.models import Prize
@@ -16,10 +17,10 @@ class RaffleType(models.Model):
     code = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True)
 
-    def str(self):
+    def __str__(self):
         return f"{self.name} ({self.code})"
 
-
+    
 class Raffle(models.Model):
     name = models.CharField(max_length=150)
     description = models.TextField(blank=True)
@@ -33,9 +34,20 @@ class Raffle(models.Model):
     end_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     logic_config = models.JSONField(null=True, blank=True)
+    unlocked_at = models.DateTimeField(null=True, blank=True, help_text="When min_participants was reached")
+    draw_delay_days = models.PositiveIntegerField(default=3, help_text="Days to wait after unlock before draw")
+    winner_selection_seed = models.CharField(max_length=64, null=True, blank=True, help_text="Public seed for transparent selection")
+    winner_selection_hash = models.CharField(max_length=64, null=True, blank=True, help_text="Hash used for winner selection")
+    winner_selection_timestamp = models.DateTimeField(null=True, blank=True, help_text="When winner was selected")
 
     def __str__(self):
         return f"{self.name} ({self.type.name})"
+    
+    def save(self, *args, **kwargs):
+        # Generate seed when creating a new raffle (for transparency)
+        if not self.pk and not self.winner_selection_seed:
+            self.winner_selection_seed = secrets.token_hex(32)  # 64 character hex string
+        super().save(*args, **kwargs)
 
 
 class Entry(models.Model):

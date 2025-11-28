@@ -89,47 +89,39 @@ export const userAPI = {
   },
 };
 
-// Raffle API (to be implemented in backend)
+// Raffle API
 export const raffleAPI = {
   getRaffles: async () => {
-    // TODO: Implement backend endpoint
-    // const response = await api.get('/lottery/raffles/');
-    // return response.data;
-    return []; // Placeholder
+    const response = await api.get('/lottery/raffles/');
+    return response.data;
   },
   getRaffle: async (id) => {
-    // TODO: Implement backend endpoint
-    // const response = await api.get(`/lottery/raffles/${id}/`);
-    // return response.data;
-    return null; // Placeholder
+    const response = await api.get(`/lottery/raffles/${id}/`);
+    return response.data;
   },
   enterRaffle: async (id) => {
-    // TODO: Implement backend endpoint
-    // const response = await api.post(`/lottery/raffles/${id}/enter/`);
-    // return response.data;
-    return null; // Placeholder
+    const response = await api.post(`/lottery/raffles/${id}/enter/`);
+    return response.data;
   },
   getMyEntries: async () => {
-    // TODO: Implement backend endpoint
-    // const response = await api.get('/lottery/entries/');
-    // return response.data;
-    return []; // Placeholder
+    const response = await api.get('/lottery/entries/');
+    return response.data;
+  },
+  getTransparency: async (id) => {
+    const response = await api.get(`/lottery/raffles/${id}/transparency/`);
+    return response.data;
   },
 };
 
-// Product API (to be implemented in backend)
+// Product API
 export const productAPI = {
   getProducts: async () => {
-    // TODO: Implement backend endpoint
-    // const response = await api.get('/products/');
-    // return response.data;
-    return []; // Placeholder
+    const response = await api.get('/products/');
+    return response.data;
   },
   purchaseProduct: async (id) => {
-    // TODO: Implement backend endpoint
-    // const response = await api.post(`/products/${id}/purchase/`);
-    // return response.data;
-    return null; // Placeholder
+    const response = await api.post(`/products/${id}/purchase/`);
+    return response.data;
   },
 };
 

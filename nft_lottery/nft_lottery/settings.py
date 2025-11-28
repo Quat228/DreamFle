@@ -115,7 +115,16 @@ CORS_ALLOW_ALL_ORIGINS = True
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://redis:6379/0")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://redis:6379/0")
 
-CELERY_BEAT_SCHEDULE = {}
+CELERY_BEAT_SCHEDULE = {
+    'check-unlocked-raffles': {
+        'task': 'lottery.tasks.check_unlocked_raffles',
+        'schedule': 300.0,  # Every 5 minutes
+    },
+    'select-raffle-winners': {
+        'task': 'lottery.tasks.select_raffle_winners',
+        'schedule': 300.0,  # Every 5 minutes
+    },
+}
 
 # ----------------------------------------------------
 # LOGGING

@@ -17,10 +17,11 @@
   position: relative;
   width: 100%;
   aspect-ratio: 16/9;
-  border-radius: 0;
+  border-radius: 12px;
   overflow: hidden;
   background: var(--tg-theme-bg-color, #ffffff);
-  margin: -16px -16px 16px -16px;
+  margin: 0 0 16px 0;
+  z-index: 1;
 }
 
 .raffle-hero-image img {
@@ -144,4 +145,6 @@
   font-size: 14px;
   color: var(--tg-theme-hint-color, #999999);
 }
+
+
 

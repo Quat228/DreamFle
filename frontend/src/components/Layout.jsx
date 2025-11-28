@@ -8,7 +8,7 @@ export default function Layout({ children }) {
   const { user } = useAuth();
 
   const navItems = [
-    { path: '/raffles', label: 'Raffles', icon: '🎰' },
+    { path: '/', label: 'Raffles', icon: '🎰' },
     { path: '/shop', label: 'Shop', icon: '🛒' },
     { path: '/entries', label: 'My Entries', icon: '🎫' },
     { path: '/profile', label: 'Profile', icon: '👤' },
@@ -41,6 +41,7 @@ export default function Layout({ children }) {
           </div>
         </div>
       )}
+      <footer className="site-footer"></footer>
     </div>
   );
 }

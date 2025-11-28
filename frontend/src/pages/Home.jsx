@@ -38,6 +38,26 @@ export default function Home() {
     };
     return colors[rarity] || colors.common;
   };
+  
+  const formatDate = (dateString) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+  
+  const getDaysUntilDraw = (drawDate) => {
+    if (!drawDate) return null;
+    const now = new Date();
+    const draw = new Date(drawDate);
+    const diffTime = draw - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+  };
 
   // Always render header immediately - don't wait for anything
   return (
@@ -101,6 +121,52 @@ export default function Home() {
                     {raffle.entries_count !== undefined && (
                       <div className="raffle-participants">
                         {raffle.entries_count} participant{raffle.entries_count !== 1 ? 's' : ''}
+                      </div>
+                    )}
+                    
+                    {/* Unlock Status for Unlockable Raffles */}
+                    {raffle.type?.code === 'unlockable' && raffle.min_participants_to_unlock && (
+                      <div style={{ 
+                        marginTop: '12px', 
+                        padding: '10px', 
+                        background: 'var(--tg-theme-bg-color, #ffffff)', 
+                        borderRadius: '8px',
+                        fontSize: '13px'
+                      }}>
+                        {raffle.is_unlocked ? (
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                              <span>🔓</span>
+                              <strong style={{ color: '#4caf50' }}>Unlocked</strong>
+                            </div>
+                            {raffle.draw_date && (
+                              <div style={{ fontSize: '12px', color: 'var(--tg-theme-hint-color, #666)' }}>
+                                Draw: {formatDate(raffle.draw_date)}
+                                {getDaysUntilDraw(raffle.draw_date) !== null && getDaysUntilDraw(raffle.draw_date) > 0 && (
+                                  <span style={{ display: 'block', marginTop: '4px', fontWeight: '600' }}>
+                                    In {getDaysUntilDraw(raffle.draw_date)} day{getDaysUntilDraw(raffle.draw_date) !== 1 ? 's' : ''}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div>
+                            <div style={{ fontSize: '12px', color: 'var(--tg-theme-hint-color, #666)', marginBottom: '6px' }}>
+                              Progress: {raffle.entries_count || 0} / {raffle.min_participants_to_unlock}
+                            </div>
+                            <div style={{ width: '100%', height: '6px', background: 'var(--tg-theme-hint-color, #e0e0e0)', borderRadius: '3px', overflow: 'hidden' }}>
+                              <div 
+                                style={{ 
+                                  height: '100%', 
+                                  background: 'var(--tg-theme-button-color, #3390ec)',
+                                  width: `${Math.min(100, ((raffle.entries_count || 0) / raffle.min_participants_to_unlock) * 100)}%`,
+                                  transition: 'width 0.3s'
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

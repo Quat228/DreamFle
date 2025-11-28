@@ -2,6 +2,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  cursor: default;
 }
 
 body {
@@ -12,6 +13,45 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: var(--tg-theme-bg-color, #ffffff);
   color: var(--tg-theme-text-color, #000000);
+  cursor: default;
+}
+
+/* Allow text selection but prevent I-beam cursor */
+p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label, input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  cursor: default;
+}
+
+/* Pointer cursor for all interactive/clickable elements */
+button,
+a,
+[role="button"],
+.clickable,
+.nav-item,
+.btn,
+.card.clickable,
+.card.clickable *,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+select {
+  cursor: pointer !important;
+}
+
+/* Disable text selection on buttons and interactive elements */
+button,
+a,
+[role="button"],
+.btn,
+.card.clickable,
+.card.clickable * {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 #root {
@@ -36,4 +76,6 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
 

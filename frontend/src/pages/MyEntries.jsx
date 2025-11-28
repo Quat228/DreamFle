@@ -88,7 +88,7 @@ export default function MyEntries() {
                 <div className="entry-cost">
                   Cost: {entry.cost_tokens} tokens
                 </div>
-                {entry.raffle.is_finished && entry.raffle.winner && (
+                {entry.raffle.is_finished && entry.raffle.winner && entry.raffle.winner.user && (
                   <div className={`entry-status ${entry.raffle.winner.user.id === user.id ? 'winner' : 'lost'}`}>
                     {entry.raffle.winner.user.id === user.id ? '🎉 You Won!' : '❌ Not Selected'}
                   </div>
@@ -101,4 +101,6 @@ export default function MyEntries() {
     </div>
   );
 }
+
+
 

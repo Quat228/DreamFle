@@ -3,48 +3,12 @@
     "model": "lottery.raffle",
     "pk": 1,
     "fields": {
-      "name": "Dragon NFT Raffle",
-      "description": "Win a rare dragon NFT",
-      "type": 1,
-      "prize": 1,
-      "cost_tokens": "10.00",
-      "min_participants_to_unlock": null,
-      "is_active": true,
-      "is_finished": false,
-      "start_at": null,
-      "end_at": null,
-      "created_at": "2024-01-01T00:00:00Z",
-      "logic_config": {}
-    }
-  },
-  {
-    "model": "lottery.raffle",
-    "pk": 2,
-    "fields": {
       "name": "Win iPhone 15 Pro",
       "description": "Premium raffle",
       "type": 2,
       "prize": 2,
       "cost_tokens": "25.00",
       "min_participants_to_unlock": 50,
-      "is_active": true,
-      "is_finished": false,
-      "start_at": null,
-      "end_at": null,
-      "created_at": "2024-01-01T00:00:00Z",
-      "logic_config": {}
-    }
-  },
-  {
-    "model": "lottery.raffle",
-    "pk": 3,
-    "fields": {
-      "name": "Premium Subscription Raffle",
-      "description": "One-year premium access",
-      "type": 3,
-      "prize": 3,
-      "cost_tokens": "5.00",
-      "min_participants_to_unlock": null,
       "is_active": true,
       "is_finished": false,
       "start_at": null,
