@@ -1,15 +1,17 @@
 from decimal import Decimal
 from datetime import timedelta
 import hashlib
-import secrets
 from django.db import transaction
 from django.utils import timezone
+
 from payments.models import TokenTransaction
+from tasks.services import create_scheduled_task
+
 from .models import Entry, Winner
 
 
 @transaction.atomic
-def enter_raffle(user, raffle):
+def enter_raffle(user, raffle, cost=None):
     """
     Enter a user into a raffle.
     
@@ -23,6 +25,7 @@ def enter_raffle(user, raffle):
     Args:
         user: The user entering the raffle
         raffle: The raffle to enter
+        cost: The cost of the raffle (optional)
         
     Returns:
         dict: Contains entry and new_token_balance
@@ -36,28 +39,28 @@ def enter_raffle(user, raffle):
     
     if raffle.is_finished:
         raise ValueError("Raffle is already finished")
-    
-    cost = Decimal(str(raffle.cost_tokens))
+
+    cost_tokens = cost if cost else Decimal(str(raffle.cost_tokens))
     
     # Validate sufficient tokens
-    if user.token_balance < cost:
+    if user.token_balance < cost_tokens:
         raise ValueError("Insufficient tokens")
     
     # Deduct tokens
-    user.token_balance -= cost
+    user.token_balance -= cost_tokens
     user.save(update_fields=['token_balance'])
     
     # Create entry
     entry = Entry.objects.create(
         user=user,
         raffle=raffle,
-        cost_tokens=cost
+        cost_tokens=cost_tokens
     )
     
     # Create transaction record
     TokenTransaction.objects.create(
         user=user,
-        amount=cost,
+        amount=cost_tokens,
         type="spend",
     )
     
@@ -74,16 +77,23 @@ def enter_raffle(user, raffle):
             # Set start_at to unlocked_at + draw_delay_days
             raffle.start_at = now + timedelta(days=raffle.draw_delay_days)
             raffle.save(update_fields=['unlocked_at', 'start_at'])
+
+            # Import here to avoid circular import at module load time
+            from lottery.tasks import select_raffle_winner
+
+            # Create ScheduledTask and schedule Celery task
+            create_scheduled_task(
+                related_object=raffle,
+                task_type="select_winner",
+                scheduled_for=raffle.start_at,
+                celery_task_func=select_raffle_winner,
+                task_args=[raffle.id],
+            )
     
     return {
         "entry": entry,
         "new_token_balance": str(user.token_balance),
     }
-
-
-def generate_selection_seed():
-    """Generate a public seed for transparent winner selection."""
-    return secrets.token_hex(32)  # 64 character hex string
 
 
 @transaction.atomic

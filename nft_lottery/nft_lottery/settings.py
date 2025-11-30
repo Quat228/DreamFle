@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     "users",
     "payments",
     "lottery",
+    "tasks",
+    "crm",
 ]
 
 MIDDLEWARE = [
@@ -120,10 +122,6 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'lottery.tasks.check_unlocked_raffles',
         'schedule': 300.0,  # Every 5 minutes
     },
-    'select-raffle-winners': {
-        'task': 'lottery.tasks.select_raffle_winners',
-        'schedule': 300.0,  # Every 5 minutes
-    },
 }
 
 # ----------------------------------------------------
@@ -178,7 +176,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'UTC'  # Database always stores UTC
 
 USE_I18N = True
 

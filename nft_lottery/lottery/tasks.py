@@ -1,6 +1,9 @@
 from celery import shared_task
 from django.utils import timezone
 from django.db import transaction
+
+from tasks.services import create_scheduled_task
+
 from .models import Raffle
 from .services import select_winner
 
@@ -32,52 +35,56 @@ def check_unlocked_raffles():
                 raffle.unlocked_at = now
                 raffle.start_at = now + timedelta(days=raffle.draw_delay_days)
                 raffle.save(update_fields=['unlocked_at', 'start_at'])
+                
+                # Create ScheduledTask and schedule Celery task
+                create_scheduled_task(
+                    related_object=raffle,
+                    task_type='select_winner',
+                    scheduled_for=raffle.start_at,
+                    celery_task_func=select_raffle_winner,
+                    task_args=[raffle.id]
+                )
+                
                 updated_count += 1
     
     return f"Checked {unlockable_raffles.count()} raffles, unlocked {updated_count}"
 
 
 @shared_task
-def select_raffle_winners():
+def select_raffle_winner(raffle_id):
     """
-    Periodic task to select winners for raffles where start_at has passed
-    and the raffle is not yet finished.
+    Task to select winner for a specific raffle.
+    This is scheduled to run at raffle.start_at time.
+    
+    Args:
+        raffle_id: The ID of the raffle to select winner for
     """
-    now = timezone.now()
-    ready_raffles = Raffle.objects.filter(
-        start_at__lte=now,
-        is_finished=False,
-        is_active=True
-    ).select_related('type')
-    
-    results = []
-    for raffle in ready_raffles:
-        try:
-            result = select_winner(raffle)
-            results.append({
-                "raffle_id": raffle.id,
-                "raffle_name": raffle.name,
-                "status": "success",
-                "winner_user_id": result["winner"].user.id,
-                "winner_username": result["winner"].user.username,
-            })
-        except ValueError as e:
-            results.append({
-                "raffle_id": raffle.id,
-                "raffle_name": raffle.name,
-                "status": "error",
-                "error": str(e),
-            })
-        except Exception as e:
-            results.append({
-                "raffle_id": raffle.id,
-                "raffle_name": raffle.name,
-                "status": "error",
-                "error": str(e),
-            })
-    
-    return {
-        "checked": ready_raffles.count(),
-        "results": results,
-    }
+    try:
+        raffle = Raffle.objects.get(id=raffle_id)
+        result = select_winner(raffle)
+        return {
+            "raffle_id": raffle.id,
+            "raffle_name": raffle.name,
+            "status": "success",
+            "winner_user_id": result["winner"].user.id,
+            "winner_username": result["winner"].user.username,
+        }
+    except Raffle.DoesNotExist:
+        return {
+            "raffle_id": raffle_id,
+            "status": "error",
+            "error": "Raffle not found",
+        }
+    except ValueError as e:
+        return {
+            "raffle_id": raffle_id,
+            "status": "error",
+            "error": str(e),
+        }
+    except Exception as e:
+        return {
+            "raffle_id": raffle_id,
+            "status": "error",
+            "error": str(e),
+        }
 
