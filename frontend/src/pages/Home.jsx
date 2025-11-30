@@ -4,17 +4,21 @@ import { useAuth } from '../contexts/AuthContext';
 import { raffleAPI } from '../services/api';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import { formatShortDate, getTimeUntil } from '../utils/dateUtils';
 import './Home.css';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [raffles, setRaffles] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadRaffles();
-  }, []);
+    // Only load raffles after auth is complete
+    if (!authLoading) {
+      loadRaffles();
+    }
+  }, [authLoading]);
 
   const loadRaffles = async () => {
     try {
@@ -39,24 +43,11 @@ export default function Home() {
     return colors[rarity] || colors.common;
   };
   
-  const formatDate = (dateString) => {
-    if (!dateString) return null;
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-  
   const getDaysUntilDraw = (drawDate) => {
     if (!drawDate) return null;
-    const now = new Date();
-    const draw = new Date(drawDate);
-    const diffTime = draw - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays > 0 ? diffDays : 0;
+    const timeUntil = getTimeUntil(drawDate);
+    if (!timeUntil) return 0;
+    return timeUntil.days;
   };
 
   // Always render header immediately - don't wait for anything
@@ -141,7 +132,7 @@ export default function Home() {
                             </div>
                             {raffle.draw_date && (
                               <div style={{ fontSize: '12px', color: 'var(--tg-theme-hint-color, #666)' }}>
-                                Draw: {formatDate(raffle.draw_date)}
+                                Draw: {formatShortDate(raffle.draw_date)}
                                 {getDaysUntilDraw(raffle.draw_date) !== null && getDaysUntilDraw(raffle.draw_date) > 0 && (
                                   <span style={{ display: 'block', marginTop: '4px', fontWeight: '600' }}>
                                     In {getDaysUntilDraw(raffle.draw_date)} day{getDaysUntilDraw(raffle.draw_date) !== 1 ? 's' : ''}

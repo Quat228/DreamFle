@@ -24,6 +24,11 @@ export const AuthProvider = ({ children }) => {
   const initializeAuth = async () => {
     try {
       console.log('[Auth] Initializing authentication...');
+      
+      // Clear any old tokens first to avoid refresh issues with non-existent users
+      localStorage.removeItem('access');
+      localStorage.removeItem('refresh');
+      
       let initDataRaw;
       try {
         const params = retrieveLaunchParams();
@@ -41,9 +46,6 @@ export const AuthProvider = ({ children }) => {
       }
 
       console.log('[Auth] Found initDataRaw, attempting Telegram authentication...');
-      console.log('[Auth] initDataRaw value:', initDataRaw);
-      console.log('[Auth] initDataRaw type:', typeof initDataRaw);
-      console.log('[Auth] initDataRaw length:', initDataRaw ? initDataRaw.length : 'undefined');
       // Try to authenticate
       const authData = await authAPI.telegramAuth(initDataRaw);
       
@@ -52,17 +54,27 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('access', authData.access);
         localStorage.setItem('refresh', authData.refresh);
         
-        // Fetch user data
-        console.log('[Auth] Fetching user data...');
-        const userData = await userAPI.getMe();
-        setUser(userData);
-        setAuthenticated(true);
-        console.log('[Auth] User authenticated:', userData.username);
+        // Use user data from auth response instead of making another API call
+        if (authData.user) {
+          setUser(authData.user);
+          setAuthenticated(true);
+          console.log('[Auth] User authenticated:', authData.user.username);
+        } else {
+          // Fallback: fetch user data if not in response
+          console.log('[Auth] Fetching user data...');
+          const userData = await userAPI.getMe();
+          setUser(userData);
+          setAuthenticated(true);
+          console.log('[Auth] User authenticated:', userData.username);
+        }
       } else {
         console.error('[Auth] Authentication failed: No access token in response');
       }
     } catch (error) {
       console.error('[Auth] Authentication error:', error);
+      // Clear tokens on error
+      localStorage.removeItem('access');
+      localStorage.removeItem('refresh');
       if (error.response) {
         console.error('[Auth] Error response:', error.response.status, error.response.data);
       } else if (error.request) {

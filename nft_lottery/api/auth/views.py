@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework import status
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 from core.telegram_auth import parse_and_validate_init_data
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -83,3 +85,27 @@ class TelegramAuthView(APIView):
                 "credit_balance": str(user.credit_balance),
             }
         })
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+    """
+    Custom token refresh view that handles errors gracefully,
+    especially when user doesn't exist.
+    """
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().post(request, *args, **kwargs)
+        except (InvalidToken, TokenError) as e:
+            logger.warning(f"Token refresh failed: {str(e)}")
+            # Return 401 instead of 500 for invalid/expired tokens
+            return Response(
+                {"detail": "Token is invalid or expired. Please re-authenticate."},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        except Exception as e:
+            logger.error(f"Unexpected error during token refresh: {str(e)}")
+            # Handle user not found or other errors gracefully
+            return Response(
+                {"detail": "Token refresh failed. Please re-authenticate."},
+                status=status.HTTP_401_UNAUTHORIZED
+            )

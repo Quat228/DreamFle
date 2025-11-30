@@ -7,17 +7,20 @@ import './MyEntries.css';
 
 export default function MyEntries() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      loadEntries();
-    } else {
-      setLoading(false);
+    // Wait for auth to complete, then check if user exists
+    if (!authLoading) {
+      if (user) {
+        loadEntries();
+      } else {
+        setLoading(false);
+      }
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   const loadEntries = async () => {
     try {
