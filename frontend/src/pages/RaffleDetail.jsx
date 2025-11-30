@@ -4,12 +4,13 @@ import { useAuth } from '../contexts/AuthContext';
 import { raffleAPI } from '../services/api';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import { formatLongDate, getTimeUntil } from '../utils/dateUtils';
 import './RaffleDetail.css';
 
 export default function RaffleDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, loading: authLoading } = useAuth();
   const [raffle, setRaffle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [entering, setEntering] = useState(false);
@@ -17,8 +18,11 @@ export default function RaffleDetail() {
   const [showTransparency, setShowTransparency] = useState(false);
 
   useEffect(() => {
-    loadRaffle();
-  }, [id]);
+    // Only load raffle after auth is complete
+    if (!authLoading) {
+      loadRaffle();
+    }
+  }, [id, authLoading]);
 
   const loadRaffle = async () => {
     try {
@@ -42,25 +46,11 @@ export default function RaffleDetail() {
     }
   };
   
-  const formatDate = (dateString) => {
-    if (!dateString) return null;
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-  
   const getDaysUntilDraw = (drawDate) => {
     if (!drawDate) return null;
-    const now = new Date();
-    const draw = new Date(drawDate);
-    const diffTime = draw - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays > 0 ? diffDays : 0;
+    const timeUntil = getTimeUntil(drawDate);
+    if (!timeUntil) return 0;
+    return timeUntil.days;
   };
 
   const handleEnter = async () => {
@@ -211,7 +201,7 @@ export default function RaffleDetail() {
                 </div>
                 {raffle.draw_date && (
                   <div style={{ fontSize: '14px', color: 'var(--tg-theme-hint-color, #666)' }}>
-                    Draw date: {formatDate(raffle.draw_date)}
+                    Draw date: {formatLongDate(raffle.draw_date)}
                     {getDaysUntilDraw(raffle.draw_date) !== null && getDaysUntilDraw(raffle.draw_date) > 0 && (
                       <span style={{ display: 'block', marginTop: '4px', fontWeight: '600' }}>
                         Draw in {getDaysUntilDraw(raffle.draw_date)} day{getDaysUntilDraw(raffle.draw_date) !== 1 ? 's' : ''}
@@ -283,7 +273,7 @@ export default function RaffleDetail() {
                       <strong>Hash:</strong> <span style={{ display: 'block', marginTop: '4px' }}>{transparency.selection_hash}</span>
                     </div>
                     <div style={{ marginBottom: '8px', wordBreak: 'break-word' }}>
-                      <strong>Timestamp:</strong> {formatDate(transparency.selection_timestamp)}
+                      <strong>Timestamp:</strong> {formatLongDate(transparency.selection_timestamp)}
                     </div>
                     <div style={{ marginBottom: '8px', wordBreak: 'break-word' }}>
                       <strong>Total Entries:</strong> {transparency.total_entries}

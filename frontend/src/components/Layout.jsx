@@ -5,7 +5,7 @@ import './Layout.css';
 
 export default function Layout({ children }) {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
   const navItems = [
     { path: '/', label: 'Raffles', icon: '🎰' },
@@ -13,6 +13,23 @@ export default function Layout({ children }) {
     { path: '/entries', label: 'My Entries', icon: '🎫' },
     { path: '/profile', label: 'Profile', icon: '👤' },
   ];
+
+  // Show loading screen while authenticating
+  if (loading) {
+    return (
+      <div className="layout">
+        <div className="layout-content" style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          minHeight: '100vh',
+          padding: '20px'
+        }}>
+          <div className="loading">Authenticating...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="layout">

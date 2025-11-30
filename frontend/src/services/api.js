@@ -15,7 +15,10 @@ api.interceptors.request.use(
   (config) => {
     // Don't override Authorization header if it's already set (e.g., for Telegram auth)
     if (!config.headers.Authorization) {
-      const token = localStorage.getItem('access');
+      // Check if this is a CRM endpoint - use CRM token if available
+      const isCRMEndpoint = config.url?.startsWith('/crm/');
+      const tokenKey = isCRMEndpoint ? 'crm_access' : 'access';
+      const token = localStorage.getItem(tokenKey);
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -32,25 +35,45 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    
+    // Don't retry refresh for auth endpoints
+    if (originalRequest.url?.includes('/auth/')) {
+      return Promise.reject(error);
+    }
+    
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      const refresh = localStorage.getItem('refresh');
+      // Check if this is a CRM endpoint
+      const isCRMEndpoint = originalRequest.url?.includes('/crm/');
+      const refreshKey = isCRMEndpoint ? 'crm_refresh' : 'refresh';
+      const accessKey = isCRMEndpoint ? 'crm_access' : 'access';
+      const refresh = localStorage.getItem(refreshKey);
+      
       if (refresh) {
         try {
-          // Try to refresh token - adjust endpoint if different
+          // Try to refresh token
           const response = await axios.post(`${API_BASE_URL}/auth/token/refresh/`, {
             refresh,
           });
           const { access } = response.data;
-          localStorage.setItem('access', access);
+          localStorage.setItem(accessKey, access);
           originalRequest.headers.Authorization = `Bearer ${access}`;
           return api(originalRequest);
         } catch (err) {
-          // If refresh fails, clear tokens and reload
-          localStorage.removeItem('access');
-          localStorage.removeItem('refresh');
-          // Don't reload in mini app, just let user re-authenticate
+          // If refresh fails (user doesn't exist, token invalid, etc.)
           console.error('Token refresh failed:', err);
+          localStorage.removeItem(accessKey);
+          localStorage.removeItem(refreshKey);
+          
+          // If it's a user not found error or invalid token, trigger re-auth
+          if (err.response?.status === 500 || 
+              err.response?.status === 401 ||
+              err.response?.data?.detail?.includes('DoesNotExist') ||
+              err.response?.data?.detail?.includes('invalid') ||
+              err.response?.data?.detail?.includes('expired')) {
+            // Clear everything - the app will re-authenticate on next load
+            console.warn('[API] Token refresh failed, user needs to re-authenticate');
+          }
         }
       }
     }
@@ -121,6 +144,35 @@ export const productAPI = {
   },
   purchaseProduct: async (id) => {
     const response = await api.post(`/products/${id}/purchase/`);
+    return response.data;
+  },
+};
+
+// CRM API
+export const crmAPI = {
+  login: async (username, password) => {
+    const response = await api.post('/crm/auth/login/', {
+      username,
+      password,
+    });
+    return response.data;
+  },
+  getMe: async () => {
+    const response = await api.get('/crm/auth/me/');
+    return response.data;
+  },
+  getRaffles: async () => {
+    const response = await api.get('/crm/raffles/');
+    return response.data;
+  },
+  getRaffle: async (id) => {
+    const response = await api.get(`/crm/raffles/${id}/`);
+    return response.data;
+  },
+  updateRaffleStartTime: async (id, newStartAt) => {
+    const response = await api.post(`/crm/raffles/${id}/update-start-time/`, {
+      new_start_at: newStartAt,
+    });
     return response.data;
   },
 };

@@ -6,14 +6,17 @@ import Button from '../components/Button';
 import './Shop.css';
 
 export default function Shop() {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, loading: authLoading } = useAuth();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(null);
 
   useEffect(() => {
-    loadProducts();
-  }, []);
+    // Only load products after auth is complete
+    if (!authLoading) {
+      loadProducts();
+    }
+  }, [authLoading]);
 
   const loadProducts = async () => {
     try {
@@ -124,6 +127,7 @@ export default function Shop() {
     </div>
   );
 }
+
 
 
 
