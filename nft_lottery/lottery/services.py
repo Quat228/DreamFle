@@ -1,37 +1,36 @@
-from decimal import Decimal
 from datetime import timedelta
 import hashlib
 from django.db import transaction
+from django.db.models import F, Sum
 from django.utils import timezone
 
-from payments.models import TokenTransaction
 from tasks.services import create_scheduled_task
 
 from .models import Entry, Winner
 
 
+def is_raffle_has_min_entries(raffle):
+    return raffle.type.code == "unlockable" and raffle.min_entries_to_unlock
+
+
 @transaction.atomic
-def enter_raffle(user, raffle, cost=None):
+def enter_raffle(user, raffle, quantity=1):
     """
-    Enter a user into a raffle.
+    Manually add entries to a raffle for a user (admin/manual entry creation).
     
-    This function handles the entire raffle entry process atomically:
-    - Validates raffle is active and not finished
-    - Validates sufficient tokens
-    - Deducts tokens from user balance
-    - Creates entry record
-    - Creates transaction record
+    This function is primarily for admin use or manual entry creation.
+    Regular entries should come from product purchases.
     
     Args:
-        user: The user entering the raffle
+        user: The user to add entries for
         raffle: The raffle to enter
-        cost: The cost of the raffle (optional)
+        quantity: Number of entries to add (default: 1)
         
     Returns:
-        dict: Contains entry and new_token_balance
+        dict: Contains entry with updated quantity
         
     Raises:
-        ValueError: If raffle is not active, already finished, or user has insufficient tokens
+        ValueError: If raffle is not active or already finished
     """
     # Validate raffle status
     if not raffle.is_active:
@@ -39,46 +38,35 @@ def enter_raffle(user, raffle, cost=None):
     
     if raffle.is_finished:
         raise ValueError("Raffle is already finished")
-
-    cost_tokens = cost if cost else Decimal(str(raffle.cost_tokens))
     
-    # Validate sufficient tokens
-    if user.token_balance < cost_tokens:
-        raise ValueError("Insufficient tokens")
-    
-    # Deduct tokens
-    user.token_balance -= cost_tokens
-    user.save(update_fields=['token_balance'])
-    
-    # Create entry
-    entry = Entry.objects.create(
+    # Get or create entry for this user+raffle combination
+    entry, created = Entry.objects.get_or_create(
         user=user,
         raffle=raffle,
-        cost_tokens=cost_tokens
+        defaults={'quantity': quantity}
     )
     
-    # Create transaction record
-    TokenTransaction.objects.create(
-        user=user,
-        amount=cost_tokens,
-        type="spend",
-    )
+    if not created:
+        # Atomically increment quantity
+        Entry.objects.filter(id=entry.id).update(
+            quantity=F('quantity') + quantity
+        )
+        entry.refresh_from_db()
     
-    # Check if unlockable raffle has reached min_participants
-    if raffle.type.code == "unlockable" and raffle.min_participants_to_unlock:
-        # Refresh raffle to get updated entry count
+    # Check if unlockable raffle has reached min_entries
+    if is_raffle_has_min_entries(raffle):
+        # Refresh raffle to get updated entry count (sum of quantities)
         raffle.refresh_from_db()
-        entry_count = raffle.entries.count()
+        total_entries = raffle.entries.aggregate(total=Sum('quantity'))['total'] or 0
         
         # If we just reached the threshold and not already unlocked
-        if entry_count >= raffle.min_participants_to_unlock and not raffle.unlocked_at:
+        if total_entries >= raffle.min_entries_to_unlock and not raffle.unlocked_at:
             now = timezone.now()
             raffle.unlocked_at = now
             # Set start_at to unlocked_at + draw_delay_days
             raffle.start_at = now + timedelta(days=raffle.draw_delay_days)
             raffle.save(update_fields=['unlocked_at', 'start_at'])
 
-            # Import here to avoid circular import at module load time
             from lottery.tasks import select_raffle_winner
 
             # Create ScheduledTask and schedule Celery task
@@ -92,7 +80,8 @@ def enter_raffle(user, raffle, cost=None):
     
     return {
         "entry": entry,
-        "new_token_balance": str(user.token_balance),
+        "quantity_added": quantity,
+        "total_entries": entry.quantity,
     }
 
 
@@ -128,28 +117,45 @@ def select_winner(raffle):
     if raffle.start_at > now:
         raise ValueError(f"Raffle draw date has not arrived yet (starts at {raffle.start_at})")
     
-    # Get all entries
+    # Get all entries with their quantities
     entries = list(raffle.entries.all())
     if not entries:
         raise ValueError("Raffle has no entries")
     
-    # Use existing seed (should have been generated when raffle was created)
+    # Use existing seed (should have been generated when the raffle was created)
     if not raffle.winner_selection_seed:
         raise ValueError("Winner selection seed not found. This should have been generated when the raffle was created.")
     
-    # Sort entry IDs for consistent ordering
+    # Build weighted entry list: expand entries by their quantity
+    # Each quantity unit = one chance in the draw
+    weighted_entries = []
+    entry_metadata = []  # Track which original entry each weighted entry belongs to
+    
+    for entry in entries:
+        for _ in range(entry.quantity):
+            weighted_entries.append(entry)
+            entry_metadata.append({
+                'original_entry_id': entry.id,
+                'user_id': entry.user.id,
+            })
+    
+    if not weighted_entries:
+        raise ValueError("Raffle has no valid entries (all quantities are zero)")
+    
+    # Sort entry IDs for consistent ordering (use original entry IDs, not weighted list)
     entry_ids = sorted([str(entry.id) for entry in entries])
     entry_ids_string = ",".join(entry_ids)
     
-    # Combine seed + entry IDs
-    combined_string = f"{raffle.winner_selection_seed}:{entry_ids_string}"
+    # Combine seed + entry IDs + quantities for transparency
+    quantities_info = ",".join([f"{e.id}:{e.quantity}" for e in entries])
+    combined_string = f"{raffle.winner_selection_seed}:{entry_ids_string}:{quantities_info}"
     
     # Generate SHA256 hash
     selection_hash = hashlib.sha256(combined_string.encode('utf-8')).hexdigest()
     
-    # Convert hash to integer and select winner
-    selection_index = int(selection_hash, 16) % len(entries)
-    winning_entry = entries[selection_index]
+    # Convert hash to integer and select winner from weighted entries
+    selection_index = int(selection_hash, 16) % len(weighted_entries)
+    winning_entry = weighted_entries[selection_index]
     
     # Create Winner record
     winner = Winner.objects.create(
@@ -167,13 +173,18 @@ def select_winner(raffle):
     raffle.save(update_fields=['is_active', 'is_finished', 'end_at', 'winner_selection_hash',
                                'winner_selection_timestamp', 'winner_selection_seed'])
     
+    # Calculate total entries (sum of quantities)
+    total_entries_count = sum(entry.quantity for entry in entries)
+    
     return {
         "winner": winner,
         "selection_seed": raffle.winner_selection_seed,
         "selection_hash": selection_hash,
         "entry_ids": entry_ids,
         "selection_index": selection_index,
-        "total_entries": len(entries),
+        "total_entries": total_entries_count,
+        "total_entry_records": len(entries),
+        "entry_quantities": {str(e.id): e.quantity for e in entries},
     }
 
 

@@ -81,8 +81,6 @@ class TelegramAuthView(APIView):
                 "id": user.id,
                 "telegram_id": user.telegram_id,
                 "username": user.username,
-                "token_balance": str(user.token_balance),
-                "credit_balance": str(user.credit_balance),
             }
         })
 

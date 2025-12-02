@@ -3,12 +3,12 @@
     "model": "products.product",
     "pk": 1,
     "fields": {
-      "name": "Trump NFT",
-      "description": "Trump as a president",
-      "type": 1,
-      "price_credits": "19.00",
-      "reward_tokens": "665.00",
-      "image": "https://collecttrumpcards.com/images/djt-america-first-hero-mobile-5_1.webp",
+      "name": "T-Shirt",
+      "description": "New T-Shirt",
+      "type": 2,
+      "price": "19.00",
+      "entries_per_product": 5000,
+      "image": "images/t_shirt_u_can_do_it.jpg",
       "metadata": {}
     }
   }

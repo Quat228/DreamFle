@@ -122,10 +122,7 @@ export const raffleAPI = {
     const response = await api.get(`/lottery/raffles/${id}/`);
     return response.data;
   },
-  enterRaffle: async (id) => {
-    const response = await api.post(`/lottery/raffles/${id}/enter/`);
-    return response.data;
-  },
+  // enterRaffle removed - entries now come from product purchases
   getMyEntries: async () => {
     const response = await api.get('/lottery/entries/');
     return response.data;
@@ -142,8 +139,10 @@ export const productAPI = {
     const response = await api.get('/products/');
     return response.data;
   },
-  purchaseProduct: async (id) => {
-    const response = await api.post(`/products/${id}/purchase/`);
+  purchaseProduct: async (id, raffleId) => {
+    const response = await api.post(`/products/${id}/purchase/`, {
+      raffle_id: raffleId,
+    });
     return response.data;
   },
 };

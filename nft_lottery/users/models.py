@@ -19,8 +19,5 @@ class User(AbstractUser):
         related_name="referrals"
     )
 
-    token_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    credit_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-
     def __str__(self):
         return f"{self.username} ({self.telegram_id})"

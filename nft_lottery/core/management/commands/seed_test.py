@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.db import connection
+from django.core.files.base import ContentFile
 import json
 import os
 from django.conf import settings
@@ -84,6 +85,27 @@ class Command(BaseCommand):
                                 self.stdout.write(self.style.WARNING(f"Skipping {fx_name} pk={pk}: Prize {fields['prize']} not found"))
                                 skipped_count += 1
                                 continue
+                    
+                    # Handle image file loading
+                    if "image" in fields and fields["image"]:
+                        image_path = fields["image"]
+                        # If it's a relative path (starts with 'images/' or just a filename), resolve it
+                        if not image_path.startswith("http") and not os.path.isabs(image_path):
+                            # Relative path - resolve it relative to the fixture directory
+                            fixture_dir = os.path.dirname(fixture_path)
+                            full_image_path = os.path.join(fixture_dir, image_path)
+                            if os.path.exists(full_image_path):
+                                # Read the file content into memory and create ContentFile
+                                with open(full_image_path, 'rb') as img_file:
+                                    file_content = img_file.read()
+                                fields["image"] = ContentFile(file_content, name=os.path.basename(image_path))
+                            else:
+                                self.stdout.write(self.style.WARNING(f"Image file not found: {full_image_path}, skipping image for {fx_name} pk={pk}"))
+                                fields.pop("image", None)
+                        # If it's a URL, skip it (ImageField doesn't accept URLs directly)
+                        elif image_path.startswith("http"):
+                            self.stdout.write(self.style.WARNING(f"Skipping URL image for {fx_name} pk={pk}: {image_path} (use local file path instead)"))
+                            fields.pop("image", None)
                     
                     # Check if object exists (by pk, or by unique fields for users)
                     obj = None

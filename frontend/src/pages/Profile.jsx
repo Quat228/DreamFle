@@ -75,29 +75,6 @@ export default function Profile() {
         </div>
       </Card>
 
-      <Card>
-        <h3>Balances</h3>
-        <div className="balances-grid">
-          <div className="balance-card">
-            <div className="balance-icon">🪙</div>
-            <div className="balance-details">
-              <span className="balance-label">Tokens</span>
-              <span className="balance-amount">
-                {parseFloat(user.token_balance || 0).toFixed(2)}
-              </span>
-            </div>
-          </div>
-          <div className="balance-card">
-            <div className="balance-icon">💳</div>
-            <div className="balance-details">
-              <span className="balance-label">Credits</span>
-              <span className="balance-amount">
-                {parseFloat(user.credit_balance || 0).toFixed(2)}
-              </span>
-            </div>
-          </div>
-        </div>
-      </Card>
 
       <Card>
         <h3>Referral Program</h3>

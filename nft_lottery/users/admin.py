@@ -10,8 +10,6 @@ class CustomUserAdmin(UserAdmin):
         "telegram_id",
         "referral_code",
         "referred_by",
-        "token_balance",
-        "credit_balance",
         "is_active",
         "is_staff",
     )
@@ -31,12 +29,6 @@ class CustomUserAdmin(UserAdmin):
                 "telegram_id",
                 "referral_code",
                 "referred_by",
-            )
-        }),
-        ("Balances", {
-            "fields": (
-                "token_balance",
-                "credit_balance",
             )
         }),
         ("Permissions", {

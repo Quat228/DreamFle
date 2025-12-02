@@ -29,15 +29,14 @@ class Raffle(models.Model):
     description = models.TextField(blank=True)
     type = models.ForeignKey(RaffleType, on_delete=models.CASCADE)
     prize = models.OneToOneField(Prize, on_delete=models.PROTECT, related_name="raffle")
-    cost_tokens = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    min_participants_to_unlock = models.PositiveIntegerField(null=True, blank=True)
+    min_entries_to_unlock = models.PositiveIntegerField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_finished = models.BooleanField(default=False)
     start_at = models.DateTimeField(null=True, blank=True)
     end_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     logic_config = models.JSONField(null=True, blank=True)
-    unlocked_at = models.DateTimeField(null=True, blank=True, help_text="When min_participants was reached")
+    unlocked_at = models.DateTimeField(null=True, blank=True, help_text="When min_entries was reached")
     draw_delay_days = models.PositiveIntegerField(default=3, help_text="Days to wait after unlock before draw")
     winner_selection_seed = models.CharField(max_length=64, null=True, blank=True,
                                              help_text="Public seed for transparent selection")
@@ -58,10 +57,15 @@ class Raffle(models.Model):
 class Entry(models.Model):
     user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="entries")
     raffle = models.ForeignKey(Raffle, on_delete=models.CASCADE, related_name="entries")
+    quantity = models.PositiveIntegerField(default=1, help_text="Number of entries this record represents")
     created_at = models.DateTimeField(auto_now_add=True)
-    cost_tokens = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    class Meta:
+        unique_together = [['user', 'raffle']]
 
     def __str__(self):
+        if self.quantity > 1:
+            return f"{self.user} → {self.raffle} (x{self.quantity})"
         return f"{self.user} → {self.raffle}"
 
 

@@ -11,7 +11,7 @@ class RaffleTypeAdmin(admin.ModelAdmin):
 class EntryInline(admin.TabularInline):
     model = Entry
     extra = 0
-    readonly_fields = ("user", "cost_tokens", "created_at")
+    readonly_fields = ("user", "quantity", "created_at")
 
 
 @admin.register(Raffle)
@@ -20,7 +20,6 @@ class RaffleAdmin(admin.ModelAdmin):
         "name",
         "type",
         "prize",
-        "cost_tokens",
         "is_active",
         "is_finished",
         "unlocked_at",
@@ -41,10 +40,10 @@ class RaffleAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ("Basic Information", {
-            "fields": ("name", "description", "type", "prize", "cost_tokens")
+            "fields": ("name", "description", "type", "prize")
         }),
         ("Unlockable Settings", {
-            "fields": ("min_participants_to_unlock", "draw_delay_days", "unlocked_at")
+            "fields": ("min_entries_to_unlock", "draw_delay_days", "unlocked_at")
         }),
         ("Status", {
             "fields": ("is_active", "is_finished", "start_at", "end_at", "created_at")
@@ -69,7 +68,7 @@ class WinnerAdmin(admin.ModelAdmin):
 
 @admin.register(Entry)
 class EntryAdmin(admin.ModelAdmin):
-    list_display = ("user", "raffle", "cost_tokens", "created_at")
+    list_display = ("user", "raffle", "quantity", "created_at")
     list_filter = ("raffle", "created_at")
     search_fields = ("user__username", "raffle__name")
     readonly_fields = ("created_at",)
