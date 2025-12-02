@@ -46,18 +46,6 @@ export default function Layout({ children }) {
           </Link>
         ))}
       </nav>
-      {user && (
-        <div className="balance-bar">
-          <div className="balance-item">
-            <span className="balance-label">Tokens:</span>
-            <span className="balance-value">{parseFloat(user.token_balance || 0).toFixed(2)}</span>
-          </div>
-          <div className="balance-item">
-            <span className="balance-label">Credits:</span>
-            <span className="balance-value">{parseFloat(user.credit_balance || 0).toFixed(2)}</span>
-          </div>
-        </div>
-      )}
       <footer className="site-footer"></footer>
     </div>
   );

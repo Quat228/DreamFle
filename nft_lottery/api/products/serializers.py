@@ -12,8 +12,8 @@ class ProductSerializer(serializers.ModelSerializer):
             "name",
             "description",
             "type_name",
-            "price_credits",
-            "reward_tokens",
+            "price",
+            "entries_per_product",
             "image",
         )
         read_only_fields = fields

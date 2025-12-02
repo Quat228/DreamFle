@@ -1,4 +1,5 @@
 from datetime import timedelta
+from django.db.models import Sum
 from rest_framework import serializers
 from lottery.models import Raffle, Entry, RaffleType
 from products.models import Prize
@@ -42,8 +43,7 @@ class RaffleSerializer(serializers.ModelSerializer):
             "description",
             "type",
             "prize",
-            "cost_tokens",
-            "min_participants_to_unlock",
+            "min_entries_to_unlock",
             "is_active",
             "is_finished",
             "start_at",
@@ -60,7 +60,9 @@ class RaffleSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_entries_count(self, obj):
-        return obj.entries.count()
+        # Sum quantities instead of counting Entry objects
+        result = obj.entries.aggregate(total=Sum('quantity'))
+        return result['total'] or 0
 
     def get_winner(self, obj):
         if obj.is_finished:
@@ -115,7 +117,7 @@ class EntrySerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "raffle",
-            "cost_tokens",
+            "quantity",
             "created_at",
         )
         read_only_fields = fields

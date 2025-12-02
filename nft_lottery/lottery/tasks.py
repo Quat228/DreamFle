@@ -1,6 +1,7 @@
 from celery import shared_task
 from django.utils import timezone
 from django.db import transaction
+from django.db.models import Sum
 
 from tasks.services import create_scheduled_task
 
@@ -11,7 +12,7 @@ from .services import select_winner
 @shared_task
 def check_unlocked_raffles():
     """
-    Periodic task to check for unlockable raffles that reached min_participants
+    Periodic task to check for unlockable raffles that reached min_entries
     but don't have unlocked_at set yet.
     This handles cases where entries were added outside of enter_raffle() or
     if the unlock check failed during entry creation.
@@ -20,7 +21,7 @@ def check_unlocked_raffles():
     
     unlockable_raffles = Raffle.objects.filter(
         type__code="unlockable",
-        min_participants_to_unlock__isnull=False,
+        min_entries_to_unlock__isnull=False,
         unlocked_at__isnull=True,
         is_active=True,
         is_finished=False
@@ -28,8 +29,9 @@ def check_unlocked_raffles():
     
     updated_count = 0
     for raffle in unlockable_raffles:
-        entry_count = raffle.entries.count()
-        if entry_count >= raffle.min_participants_to_unlock:
+        # Sum quantities instead of counting Entry objects
+        total_entries = raffle.entries.aggregate(total=Sum('quantity'))['total'] or 0
+        if total_entries >= raffle.min_entries_to_unlock:
             now = timezone.now()
             with transaction.atomic():
                 raffle.unlocked_at = now

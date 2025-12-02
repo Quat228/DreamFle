@@ -53,35 +53,8 @@ export default function RaffleDetail() {
     return timeUntil.days;
   };
 
-  const handleEnter = async () => {
-    if (!user) {
-      alert('Please authenticate first');
-      return;
-    }
-
-    const cost = parseFloat(raffle.cost_tokens);
-    if (user.token_balance < cost) {
-      alert('Insufficient tokens! Please purchase more in the shop.');
-      navigate('/shop');
-      return;
-    }
-
-    if (!confirm(`Enter this raffle for ${cost} tokens?`)) {
-      return;
-    }
-
-    try {
-      setEntering(true);
-      await raffleAPI.enterRaffle(id);
-      await refreshUser();
-      alert('Successfully entered the raffle!');
-      navigate('/entries');
-    } catch (error) {
-      console.error('Error entering raffle:', error);
-      alert(error.response?.data?.detail || 'Failed to enter raffle');
-    } finally {
-      setEntering(false);
-    }
+  const handleBuyProducts = () => {
+    navigate(`/shop?raffle=${id}`);
   };
 
   const getRarityColor = (rarity) => {
@@ -116,7 +89,6 @@ export default function RaffleDetail() {
     );
   }
 
-  const canEnter = user && parseFloat(user.token_balance || 0) >= parseFloat(raffle.cost_tokens || 0);
   const isFinished = raffle.is_finished;
   const isActive = raffle.is_active && !isFinished;
 
@@ -166,19 +138,15 @@ export default function RaffleDetail() {
       <Card>
         <h3>Raffle Information</h3>
         <div className="info-grid">
-          <div className="info-item">
-            <span className="info-label">Entry Cost</span>
-            <span className="info-value">{raffle.cost_tokens} tokens</span>
-          </div>
-          {raffle.min_participants_to_unlock && (
+          {raffle.min_entries_to_unlock && (
             <div className="info-item">
-              <span className="info-label">Min Participants</span>
-              <span className="info-value">{raffle.min_participants_to_unlock}</span>
+              <span className="info-label">Min Entries</span>
+              <span className="info-value">{raffle.min_entries_to_unlock}</span>
             </div>
           )}
           {raffle.entries_count !== undefined && (
             <div className="info-item">
-              <span className="info-label">Current Entries</span>
+              <span className="info-label">Total Entries</span>
               <span className="info-value">{raffle.entries_count}</span>
             </div>
           )}
@@ -191,7 +159,7 @@ export default function RaffleDetail() {
         </div>
         
         {/* Unlock Status */}
-        {raffle.type?.code === 'unlockable' && raffle.min_participants_to_unlock && (
+        {raffle.type?.code === 'unlockable' && raffle.min_entries_to_unlock && (
           <div style={{ marginTop: '16px', padding: '12px', background: 'var(--tg-theme-bg-color, #f5f5f5)', borderRadius: '8px' }}>
             {raffle.is_unlocked ? (
               <div>
@@ -217,13 +185,13 @@ export default function RaffleDetail() {
                   <strong>Locked</strong>
                 </div>
                 <div style={{ fontSize: '14px', color: 'var(--tg-theme-hint-color, #666)' }}>
-                  Progress: {raffle.entries_count || 0} / {raffle.min_participants_to_unlock} participants
+                  Progress: {raffle.entries_count || 0} / {raffle.min_entries_to_unlock} entries
                   <div style={{ marginTop: '8px', width: '100%', height: '8px', background: 'var(--tg-theme-hint-color, #e0e0e0)', borderRadius: '4px', overflow: 'hidden' }}>
                     <div 
                       style={{ 
                         height: '100%', 
                         background: 'var(--tg-theme-button-color, #3390ec)',
-                        width: `${Math.min(100, ((raffle.entries_count || 0) / raffle.min_participants_to_unlock) * 100)}%`,
+                        width: `${Math.min(100, ((raffle.entries_count || 0) / raffle.min_entries_to_unlock) * 100)}%`,
                         transition: 'width 0.3s'
                       }}
                     />
@@ -300,24 +268,14 @@ export default function RaffleDetail() {
         <div className="action-section">
           {!user ? (
             <Button fullWidth onClick={() => navigate('/profile')}>
-              Authenticate to Enter
+              Authenticate to Buy Products
             </Button>
-          ) : !canEnter ? (
-            <div>
-              <Button fullWidth variant="secondary" onClick={() => navigate('/shop')}>
-                Get More Tokens
-              </Button>
-              <p className="insufficient-tokens">
-                You need {raffle.cost_tokens} tokens. You have {parseFloat(user.token_balance || 0).toFixed(2)}.
-              </p>
-            </div>
           ) : (
             <Button
               fullWidth
-              onClick={handleEnter}
-              disabled={entering}
+              onClick={handleBuyProducts}
             >
-              {entering ? 'Entering...' : `Enter Raffle (${raffle.cost_tokens} tokens)`}
+              Buy Products to Get Entries
             </Button>
           )}
         </div>

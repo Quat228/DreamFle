@@ -67,7 +67,7 @@ export default function MyEntries() {
           <div className="empty-state">
             <div className="empty-icon">🎲</div>
             <p>You haven't entered any raffles yet</p>
-            <p className="empty-hint">Browse active raffles and enter to win!</p>
+            <p className="empty-hint">Browse active raffles and buy products to get entries!</p>
           </div>
         </Card>
       ) : (
@@ -88,8 +88,8 @@ export default function MyEntries() {
                   <span className="prize-label">Prize:</span>
                   <span className="prize-name">{entry.raffle.prize?.name}</span>
                 </div>
-                <div className="entry-cost">
-                  Cost: {entry.cost_tokens} tokens
+                <div className="entry-quantity">
+                  {entry.quantity} {entry.quantity === 1 ? 'entry' : 'entries'}
                 </div>
                 {entry.raffle.is_finished && entry.raffle.winner && entry.raffle.winner.user && (
                   <div className={`entry-status ${entry.raffle.winner.user.id === user.id ? 'winner' : 'lost'}`}>

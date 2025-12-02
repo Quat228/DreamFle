@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { productAPI } from '../services/api';
 import Card from '../components/Card';
@@ -6,6 +7,8 @@ import Button from '../components/Button';
 import './Shop.css';
 
 export default function Shop() {
+  const [searchParams] = useSearchParams();
+  const raffleId = searchParams.get('raffle');
   const { user, refreshUser, loading: authLoading } = useAuth();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,21 +39,26 @@ export default function Shop() {
       return;
     }
 
-    const cost = parseFloat(products.find(p => p.id === productId)?.price_credits || 0);
-    if (user.credit_balance < cost) {
-      alert('Insufficient credits!');
+    if (!raffleId) {
+      alert('Please select a raffle first');
       return;
     }
 
-    if (!confirm('Purchase this product?')) {
+    const product = products.find(p => p.id === productId);
+    if (!product) {
+      alert('Product not found');
+      return;
+    }
+
+    if (!confirm(`Purchase ${product.name} and receive ${product.entries_per_product} entries?`)) {
       return;
     }
 
     try {
       setPurchasing(productId);
-      await productAPI.purchaseProduct(productId);
+      const result = await productAPI.purchaseProduct(productId, raffleId);
       await refreshUser();
-      alert('Purchase successful!');
+      alert(`Purchase successful! You received ${result.entries_granted} entries!`);
     } catch (error) {
       console.error('Error purchasing product:', error);
       alert(error.response?.data?.detail || 'Failed to purchase product');
@@ -71,7 +79,14 @@ export default function Shop() {
     <div className="shop">
       <div className="shop-header">
         <h1>🛒 Shop</h1>
-        <p className="subtitle">Buy tokens and credits</p>
+        <p className="subtitle">
+          {raffleId ? 'Buy products to get entries for this raffle' : 'Select a raffle to see products'}
+        </p>
+        {!raffleId && (
+          <p style={{ color: 'var(--tg-theme-hint-color, #999)', fontSize: '14px', marginTop: '8px' }}>
+            Go to the home page and select a raffle to purchase products
+          </p>
+        )}
       </div>
 
       {products.length === 0 ? (
@@ -84,8 +99,6 @@ export default function Shop() {
       ) : (
         <div className="products-list">
           {products.map((product) => {
-            const canAfford = user && parseFloat(user.credit_balance || 0) >= parseFloat(product.price_credits || 0);
-            
             return (
               <Card key={product.id}>
                 <div className="product-card">
@@ -99,19 +112,18 @@ export default function Shop() {
                     <p className="product-description">{product.description}</p>
                     <div className="product-rewards">
                       <div className="reward-item">
-                        <span className="reward-label">Reward:</span>
-                        <span className="reward-value">+{product.reward_tokens} tokens</span>
+                        <span className="reward-label">Entries:</span>
+                        <span className="reward-value">+{product.entries_per_product} entries</span>
                       </div>
                     </div>
                     <div className="product-footer">
                       <div className="product-price">
-                        <span className="price-value">{product.price_credits}</span>
-                        <span className="price-currency">credits</span>
+                        <span className="price-value">${product.price}</span>
                       </div>
                       <Button
-                        variant={canAfford ? 'primary' : 'secondary'}
+                        variant="primary"
                         onClick={() => handlePurchase(product.id)}
-                        disabled={!canAfford || purchasing === product.id}
+                        disabled={!raffleId || purchasing === product.id}
                         size="small"
                       >
                         {purchasing === product.id ? 'Purchasing...' : 'Buy'}

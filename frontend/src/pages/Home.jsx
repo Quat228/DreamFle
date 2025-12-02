@@ -75,7 +75,7 @@ export default function Home() {
             {raffles.map((raffle) => (
               <Card
                 key={raffle.id}
-                onClick={() => navigate(`/raffle/${raffle.id}`)}
+                onClick={() => navigate(`/shop?raffle=${raffle.id}`)}
               >
                 <div className="raffle-card">
                   {raffle.prize?.image && (
@@ -98,14 +98,10 @@ export default function Home() {
                       <strong>Prize:</strong> {raffle.prize?.name}
                     </div>
                     <div className="raffle-meta">
-                      <div className="meta-item">
-                        <span className="meta-label">Cost:</span>
-                        <span className="meta-value">{raffle.cost_tokens} tokens</span>
-                      </div>
-                      {raffle.min_participants_to_unlock && (
+                      {raffle.min_entries_to_unlock && (
                         <div className="meta-item">
-                          <span className="meta-label">Min participants:</span>
-                          <span className="meta-value">{raffle.min_participants_to_unlock}</span>
+                          <span className="meta-label">Min entries:</span>
+                          <span className="meta-value">{raffle.min_entries_to_unlock}</span>
                         </div>
                       )}
                     </div>
@@ -116,7 +112,7 @@ export default function Home() {
                     )}
                     
                     {/* Unlock Status for Unlockable Raffles */}
-                    {raffle.type?.code === 'unlockable' && raffle.min_participants_to_unlock && (
+                    {raffle.type?.code === 'unlockable' && raffle.min_entries_to_unlock && (
                       <div style={{ 
                         marginTop: '12px', 
                         padding: '10px', 
@@ -144,14 +140,14 @@ export default function Home() {
                         ) : (
                           <div>
                             <div style={{ fontSize: '12px', color: 'var(--tg-theme-hint-color, #666)', marginBottom: '6px' }}>
-                              Progress: {raffle.entries_count || 0} / {raffle.min_participants_to_unlock}
+                              Progress: {raffle.entries_count || 0} / {raffle.min_entries_to_unlock}
                             </div>
                             <div style={{ width: '100%', height: '6px', background: 'var(--tg-theme-hint-color, #e0e0e0)', borderRadius: '3px', overflow: 'hidden' }}>
                               <div 
                                 style={{ 
                                   height: '100%', 
                                   background: 'var(--tg-theme-button-color, #3390ec)',
-                                  width: `${Math.min(100, ((raffle.entries_count || 0) / raffle.min_participants_to_unlock) * 100)}%`,
+                                  width: `${Math.min(100, ((raffle.entries_count || 0) / raffle.min_entries_to_unlock) * 100)}%`,
                                   transition: 'width 0.3s'
                                 }}
                               />
