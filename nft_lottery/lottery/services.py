@@ -1,64 +1,26 @@
 from datetime import timedelta
 import hashlib
 from django.db import transaction
-from django.db.models import F, Sum
+from django.db.models import Sum
 from django.utils import timezone
 
+from payments.models import UserCoupon, Coupon
 from tasks.services import create_scheduled_task
 
-from .models import Entry, Winner
+from .models import Winner
 
 
 def is_raffle_has_min_entries(raffle):
     return raffle.type.code == "unlockable" and raffle.min_entries_to_unlock
 
 
-@transaction.atomic
-def enter_raffle(user, raffle, quantity=1):
-    """
-    Manually add entries to a raffle for a user (admin/manual entry creation).
-    
-    This function is primarily for admin use or manual entry creation.
-    Regular entries should come from product purchases.
-    
-    Args:
-        user: The user to add entries for
-        raffle: The raffle to enter
-        quantity: Number of entries to add (default: 1)
-        
-    Returns:
-        dict: Contains entry with updated quantity
-        
-    Raises:
-        ValueError: If raffle is not active or already finished
-    """
-    # Validate raffle status
-    if not raffle.is_active:
-        raise ValueError("Raffle is not active")
-    
-    if raffle.is_finished:
-        raise ValueError("Raffle is already finished")
-    
-    # Get or create entry for this user+raffle combination
-    entry, created = Entry.objects.get_or_create(
-        user=user,
-        raffle=raffle,
-        defaults={'quantity': quantity}
-    )
-    
-    if not created:
-        # Atomically increment quantity
-        Entry.objects.filter(id=entry.id).update(
-            quantity=F('quantity') + quantity
-        )
-        entry.refresh_from_db()
-    
-    # Check if unlockable raffle has reached min_entries
+def check_raffle_min_entries(raffle):
+    created_task = None
     if is_raffle_has_min_entries(raffle):
         # Refresh raffle to get updated entry count (sum of quantities)
         raffle.refresh_from_db()
         total_entries = raffle.entries.aggregate(total=Sum('quantity'))['total'] or 0
-        
+
         # If we just reached the threshold and not already unlocked
         if total_entries >= raffle.min_entries_to_unlock and not raffle.unlocked_at:
             now = timezone.now()
@@ -67,22 +29,19 @@ def enter_raffle(user, raffle, quantity=1):
             raffle.start_at = now + timedelta(days=raffle.draw_delay_days)
             raffle.save(update_fields=['unlocked_at', 'start_at'])
 
+            # Import here to avoid circular import at module load time
             from lottery.tasks import select_raffle_winner
 
             # Create ScheduledTask and schedule Celery task
-            create_scheduled_task(
+            created_task = create_scheduled_task(
                 related_object=raffle,
                 task_type="select_winner",
                 scheduled_for=raffle.start_at,
                 celery_task_func=select_raffle_winner,
                 task_args=[raffle.id],
             )
-    
-    return {
-        "entry": entry,
-        "quantity_added": quantity,
-        "total_entries": entry.quantity,
-    }
+
+    return created_task, created_task is not None
 
 
 @transaction.atomic
@@ -172,6 +131,16 @@ def select_winner(raffle):
     raffle.winner_selection_timestamp = now
     raffle.save(update_fields=['is_active', 'is_finished', 'end_at', 'winner_selection_hash',
                                'winner_selection_timestamp', 'winner_selection_seed'])
+
+    # Give coupon bonus for all participants except for winner
+    coupon = Coupon.objects.get(type="lost")
+    objects_to_create = [
+        UserCoupon(coupon=coupon, user=entry.user)
+        for entry in entries
+        if entry is not winning_entry
+    ]
+
+    UserCoupon.objects.bulk_create(objects_to_create)
     
     # Calculate total entries (sum of quantities)
     total_entries_count = sum(entry.quantity for entry in entries)

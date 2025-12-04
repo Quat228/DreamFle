@@ -14,6 +14,7 @@ services:
       - redis
     volumes:
       - ./staticfiles:/app/nft_lottery/static
+      - ./media:/app/nft_lottery/media
     command: bash -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
 
   celery:

@@ -1,12 +1,9 @@
-from datetime import timedelta
-
 from django.db import transaction
 from django.db.models import F
-from django.utils import timezone
 
-from tasks.services import create_scheduled_task
+from payments.models import ProductPurchase
 from lottery.models import Entry, Raffle
-from lottery.services import is_raffle_has_min_entries
+from lottery.services import check_raffle_min_entries
 
 
 @transaction.atomic
@@ -58,31 +55,9 @@ def purchase_product(user, product, raffle_id):
         entry.refresh_from_db()
     
     # Check if unlockable raffle has reached min_entries
-    if is_raffle_has_min_entries(raffle):
-        # Refresh raffle to get updated entry count (sum of quantities)
-        raffle.refresh_from_db()
-        from django.db.models import Sum
-        total_entries = raffle.entries.aggregate(total=Sum('quantity'))['total'] or 0
-        
-        # If we just reached the threshold and not already unlocked
-        if total_entries >= raffle.min_entries_to_unlock and not raffle.unlocked_at:
-            now = timezone.now()
-            raffle.unlocked_at = now
-            # Set start_at to unlocked_at + draw_delay_days
-            raffle.start_at = now + timedelta(days=raffle.draw_delay_days)
-            raffle.save(update_fields=['unlocked_at', 'start_at'])
+    check_raffle_min_entries(raffle)
 
-            # Import here to avoid circular import at module load time
-            from lottery.tasks import select_raffle_winner
-
-            # Create ScheduledTask and schedule Celery task
-            create_scheduled_task(
-                related_object=raffle,
-                task_type="select_winner",
-                scheduled_for=raffle.start_at,
-                celery_task_func=select_raffle_winner,
-                task_args=[raffle.id],
-            )
+    ProductPurchase.objects.create(product=product, user=user, amount=product.price)
     
     return {
         "entry": entry,
