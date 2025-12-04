@@ -7,6 +7,7 @@ import CRMLayout from './components/CRMLayout';
 import Home from './pages/Home';
 import RaffleDetail from './pages/RaffleDetail';
 import Shop from './pages/Shop';
+import ProductDetail from './pages/ProductDetail';
 import MyEntries from './pages/MyEntries';
 import Profile from './pages/Profile';
 import CRMLogin from './pages/crm/CRMLogin';
@@ -58,6 +59,7 @@ function AppRoutes() {
       <Route path="/" element={<Home />} />
       <Route path="/raffle/:id" element={<RaffleDetail />} />
       <Route path="/shop" element={<Shop />} />
+      <Route path="/product/:id" element={<ProductDetail />} />
       <Route path="/entries" element={<MyEntries />} />
       <Route path="/profile" element={<Profile />} />
     </Routes>

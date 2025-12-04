@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { productAPI } from '../services/api';
 import Card from '../components/Card';
@@ -8,11 +8,11 @@ import './Shop.css';
 
 export default function Shop() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const raffleId = searchParams.get('raffle');
   const { user, refreshUser, loading: authLoading } = useAuth();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [purchasing, setPurchasing] = useState(null);
 
   useEffect(() => {
     // Only load products after auth is complete
@@ -33,38 +33,11 @@ export default function Shop() {
     }
   };
 
-  const handlePurchase = async (productId) => {
-    if (!user) {
-      alert('Please authenticate first');
-      return;
-    }
-
-    if (!raffleId) {
-      alert('Please select a raffle first');
-      return;
-    }
-
-    const product = products.find(p => p.id === productId);
-    if (!product) {
-      alert('Product not found');
-      return;
-    }
-
-    if (!confirm(`Purchase ${product.name} and receive ${product.entries_per_product} entries?`)) {
-      return;
-    }
-
-    try {
-      setPurchasing(productId);
-      const result = await productAPI.purchaseProduct(productId, raffleId);
-      await refreshUser();
-      alert(`Purchase successful! You received ${result.entries_granted} entries!`);
-    } catch (error) {
-      console.error('Error purchasing product:', error);
-      alert(error.response?.data?.detail || 'Failed to purchase product');
-    } finally {
-      setPurchasing(null);
-    }
+  const handleProductClick = (productId) => {
+    const url = raffleId 
+      ? `/product/${productId}?raffle=${raffleId}`
+      : `/product/${productId}`;
+    navigate(url);
   };
 
   if (loading) {
@@ -100,7 +73,10 @@ export default function Shop() {
         <div className="products-list">
           {products.map((product) => {
             return (
-              <Card key={product.id}>
+              <Card 
+                key={product.id}
+                onClick={() => handleProductClick(product.id)}
+              >
                 <div className="product-card">
                   {product.image && (
                     <div className="product-image">
@@ -120,14 +96,6 @@ export default function Shop() {
                       <div className="product-price">
                         <span className="price-value">${product.price}</span>
                       </div>
-                      <Button
-                        variant="primary"
-                        onClick={() => handlePurchase(product.id)}
-                        disabled={!raffleId || purchasing === product.id}
-                        size="small"
-                      >
-                        {purchasing === product.id ? 'Purchasing...' : 'Buy'}
-                      </Button>
                     </div>
                   </div>
                 </div>

@@ -73,10 +73,7 @@ export default function Home() {
         ) : (
           <div className="raffles-list">
             {raffles.map((raffle) => (
-              <Card
-                key={raffle.id}
-                onClick={() => navigate(`/shop?raffle=${raffle.id}`)}
-              >
+              <Card key={raffle.id}>
                 <div className="raffle-card">
                   {raffle.prize?.image && (
                     <div className="raffle-image">
@@ -156,6 +153,16 @@ export default function Home() {
                         )}
                       </div>
                     )}
+                    
+                    <div style={{ marginTop: '16px' }}>
+                      <Button
+                        variant="primary"
+                        fullWidth
+                        onClick={() => navigate(`/shop?raffle=${raffle.id}`)}
+                      >
+                        Enter
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </Card>

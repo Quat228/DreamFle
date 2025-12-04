@@ -139,6 +139,10 @@ export const productAPI = {
     const response = await api.get('/products/');
     return response.data;
   },
+  getProduct: async (id) => {
+    const response = await api.get(`/products/${id}/`);
+    return response.data;
+  },
   purchaseProduct: async (id, raffleId) => {
     const response = await api.post(`/products/${id}/purchase/`, {
       raffle_id: raffleId,

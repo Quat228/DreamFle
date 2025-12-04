@@ -34,5 +34,8 @@ COPY --from=frontend-build /app/frontend/dist /app/nft_lottery/nft_lottery/stati
 # set working directory to Django project root
 WORKDIR /app/nft_lottery
 
+# Create base media directory (Django will create subdirectories automatically)
+RUN mkdir -p media
+
 # collect static once here
 RUN python manage.py collectstatic --noinput

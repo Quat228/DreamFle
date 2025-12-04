@@ -162,9 +162,10 @@ class Command(BaseCommand):
                     f"Processed {fx_name}: {created_count} created, {skipped_count} skipped (already exist)"
                 ))
                 
-                # Fix PostgreSQL sequences after creating users with explicit PKs
-                if app_name == "users" and fx_name == "test_users":
-                    self._fix_sequence_for_model(Model)
+                # Fix PostgreSQL sequences after creating objects with explicit PKs
+                # This prevents primary key conflicts when creating new objects in admin
+                # Always fix sequence to ensure it's in sync (handles cases where objects exist but sequence is wrong)
+                self._fix_sequence_for_model(Model)
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f"Failed to load {fx_name}: {e}"))
                 import traceback
@@ -177,16 +178,25 @@ class Command(BaseCommand):
         table_name = model._meta.db_table
         sequence_name = f"{table_name}_id_seq"
         
-        with connection.cursor() as cursor:
-            # Get the maximum ID from the table
-            cursor.execute(f"SELECT COALESCE(MAX(id), 0) FROM {table_name}")
-            max_id = cursor.fetchone()[0]
-            
-            # Reset the sequence to max_id + 1
-            cursor.execute(f"SELECT setval('{sequence_name}', {max_id + 1}, false)")
-            
+        try:
+            with connection.cursor() as cursor:
+                # Get the maximum ID from the table
+                cursor.execute(f"SELECT COALESCE(MAX(id), 0) FROM {table_name}")
+                max_id = cursor.fetchone()[0]
+                
+                # Reset the sequence to max_id + 1
+                # Use false to prevent the next value from being the one we set
+                cursor.execute(f"SELECT setval('{sequence_name}', {max_id + 1}, false)")
+                
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f"Fixed sequence {sequence_name} for {table_name} (set to {max_id + 1})"
+                    )
+                )
+        except Exception as e:
+            # If sequence doesn't exist or there's an error, log it but don't fail
             self.stdout.write(
-                self.style.SUCCESS(
-                    f"Fixed sequence {sequence_name} for {table_name} (set to {max_id + 1})"
+                self.style.WARNING(
+                    f"Could not fix sequence {sequence_name} for {table_name}: {e}"
                 )
             )

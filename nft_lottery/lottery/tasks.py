@@ -14,7 +14,7 @@ def check_unlocked_raffles():
     """
     Periodic task to check for unlockable raffles that reached min_entries
     but don't have unlocked_at set yet.
-    This handles cases where entries were added outside of enter_raffle() or
+    This handles cases where entries were added outside of purchase_product() or
     if the unlock check failed during entry creation.
     """
     from datetime import timedelta
