@@ -11,6 +11,7 @@ env/
 
 # Django stuff
 static/
+staticfiles/
 media/
 *.sqlite3
 
@@ -34,7 +35,6 @@ postgres-data/
 # Docker
 *.pid
 *.tar
-*.log
 
 # Local settings
 local_settings.py
