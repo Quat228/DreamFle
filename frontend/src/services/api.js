@@ -143,6 +143,10 @@ export const raffleAPI = {
     const response = await api.get(`/lottery/raffles/${id}/transparency/`);
     return response.data;
   },
+  getPreviousRaffles: async () => {
+    const response = await api.get('/lottery/raffles/previous/');
+    return response.data;
+  },
 };
 
 // Product API

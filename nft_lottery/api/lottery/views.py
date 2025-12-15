@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -23,6 +24,21 @@ class RaffleListAPIView(ListAPIView):
             is_active=True, 
             is_finished=False
         ).select_related('prize', 'type').prefetch_related('entries')
+
+
+class PreviousRafflesAPIView(ListAPIView):
+    """
+    GET /api/lottery/raffles/previous/
+    Returns list of inactive/finished raffles with winners.
+    """
+    serializer_class = RaffleSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Return inactive or finished raffles
+        return Raffle.objects.filter(
+            Q(is_active=False) | Q(is_finished=True)
+        ).select_related('prize', 'type', 'winner', 'winner__user', 'winner__entry').prefetch_related('entries').order_by('-created_at')
 
 
 class RaffleDetailAPIView(RetrieveAPIView):

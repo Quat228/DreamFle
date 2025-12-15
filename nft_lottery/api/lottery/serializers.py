@@ -65,14 +65,18 @@ class RaffleSerializer(serializers.ModelSerializer):
         return result['total'] or 0
 
     def get_winner(self, obj):
-        if obj.is_finished:
+        if obj.is_finished or not obj.is_active:
             try:
                 # Check if winner relationship exists
                 if hasattr(obj, 'winner') and obj.winner is not None:
-                    return {
+                    winner_data = {
                         "id": obj.winner.user.id,
                         "username": obj.winner.user.username,
                     }
+                    # Include entry_id if available
+                    if obj.winner.entry:
+                        winner_data["entry_id"] = obj.winner.entry.id
+                    return winner_data
             except Exception:
                 # Winner doesn't exist or relationship is broken
                 pass

@@ -9,6 +9,7 @@ import RaffleDetail from './pages/RaffleDetail';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import MyEntries from './pages/MyEntries';
+import PreviousRaffles from './pages/PreviousRaffles';
 import Profile from './pages/Profile';
 import CouponDetail from './pages/CouponDetail';
 import CRMLogin from './pages/crm/CRMLogin';
@@ -62,6 +63,7 @@ function AppRoutes() {
       <Route path="/shop" element={<Shop />} />
       <Route path="/product/:id" element={<ProductDetail />} />
       <Route path="/entries" element={<MyEntries />} />
+      <Route path="/previous-raffles" element={<PreviousRaffles />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/coupon/:id" element={<CouponDetail />} />
     </Routes>

@@ -11,6 +11,7 @@ export default function Layout({ children }) {
     { path: '/', label: 'Raffles', icon: '🎰' },
     { path: '/shop', label: 'Shop', icon: '🛒' },
     { path: '/entries', label: 'My Entries', icon: '🎫' },
+    { path: '/previous-raffles', label: 'Previous', icon: '🏆' },
     { path: '/profile', label: 'Profile', icon: '👤' },
   ];
 

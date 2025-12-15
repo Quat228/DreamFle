@@ -1,0 +1,249 @@
+.previous-raffles {
+  padding-bottom: 20px;
+}
+
+.raffles-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.raffles-header h1 {
+  font-size: 32px;
+  margin: 0 0 8px 0;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.subtitle {
+  color: var(--tg-theme-hint-color, #999999);
+  font-size: 16px;
+  margin: 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--tg-theme-hint-color, #999999);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.empty-state p {
+  margin: 8px 0;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.empty-hint {
+  color: var(--tg-theme-hint-color, #999999);
+  font-size: 14px;
+}
+
+.raffles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.raffle-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.raffle-image {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.raffle-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rarity-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.raffle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.raffle-header h3 {
+  margin: 0;
+  font-size: 18px;
+  flex: 1;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.finished {
+  background: #4caf50;
+  color: white;
+}
+
+.status-badge.inactive {
+  background: var(--tg-theme-hint-color, #e0e0e0);
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.raffle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: var(--tg-theme-bg-color, #f5f5f5);
+  border-radius: 8px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-label {
+  font-size: 14px;
+  color: var(--tg-theme-hint-color, #666666);
+}
+
+.info-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.winner-section {
+  padding: 12px;
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  border-radius: 8px;
+  color: white;
+}
+
+.winner-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.winner-icon {
+  font-size: 24px;
+}
+
+.winner-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.winner-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.winner-name {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.winner-entry-id {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.entry-id-label {
+  font-weight: 600;
+}
+
+.entry-id-value {
+  font-family: monospace;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.transparency-section {
+  margin-top: 8px;
+}
+
+.transparency-content {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--tg-theme-secondary-bg-color, #ffffff);
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.transparency-item {
+  margin-bottom: 12px;
+  word-break: break-word;
+}
+
+.transparency-item:last-child {
+  margin-bottom: 0;
+}
+
+.transparency-item strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.transparency-value {
+  margin-top: 4px;
+  padding: 8px;
+  background: var(--tg-theme-bg-color, #f5f5f5);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 11px;
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+.verification-steps {
+  margin-top: 8px;
+  padding-left: 20px;
+}
+
+.verification-steps li {
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
