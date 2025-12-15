@@ -14,6 +14,7 @@ class Command(BaseCommand):
             ("product_types", "products"),
             ("prize_types", "products"),
             ("raffle_types", "lottery"),
+            ("coupons", "payments"),
         ]
 
         self.stdout.write(self.style.WARNING("Loading BASE fixtures (safe mode - won't overwrite existing data)..."))
@@ -38,6 +39,9 @@ class Command(BaseCommand):
                         from products.models import PrizeType as Model
                 elif app_name == "lottery":
                     from lottery.models import RaffleType as Model
+                elif app_name == "payments":
+                    if fx_name == "coupons":
+                        from payments.models import Coupon as Model
                 
                 # Use get_or_create to avoid overwriting
                 created_count = 0

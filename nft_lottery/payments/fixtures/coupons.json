@@ -1,0 +1,21 @@
+[
+  {
+    "model": "payments.coupon",
+    "pk": 1,
+    "fields": {
+      "name": "Referral Bonus",
+      "type": "referral",
+      "entries": 1000
+    }
+  },
+  {
+    "model": "payments.coupon",
+    "pk": 2,
+    "fields": {
+      "name": "Lost Raffle Compensation",
+      "type": "lost",
+      "entries": 500
+    }
+  }
+]
+

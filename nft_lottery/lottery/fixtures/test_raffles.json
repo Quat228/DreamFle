@@ -7,7 +7,7 @@
       "description": "Premium raffle",
       "type": 1,
       "prize": 1,
-      "min_entries_to_unlock": 5,
+      "min_entries_to_unlock": 30000,
       "is_active": true,
       "is_finished": false,
       "start_at": null,
