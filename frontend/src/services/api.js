@@ -112,6 +112,18 @@ export const userAPI = {
   },
 };
 
+// Coupon API
+export const couponAPI = {
+  getMyCoupons: async () => {
+    const response = await api.get('/payments/coupons/');
+    return response.data;
+  },
+  getCoupon: async (id) => {
+    const response = await api.get(`/payments/coupons/${id}/`);
+    return response.data;
+  },
+};
+
 // Raffle API
 export const raffleAPI = {
   getRaffles: async () => {

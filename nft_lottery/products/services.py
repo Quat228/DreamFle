@@ -2,6 +2,7 @@ from django.db import transaction
 from django.db.models import F
 
 from payments.models import ProductPurchase
+from payments.services import get_user_bonus_entries, delete_user_coupons
 from lottery.models import Entry, Raffle
 from lottery.services import check_raffle_min_entries
 
@@ -39,20 +40,27 @@ def purchase_product(user, product, raffle_id):
     
     if raffle.is_finished:
         raise ValueError("Raffle is already finished")
-    
+
+    # Get all bonus entries
+    bonus_entries: int = get_user_bonus_entries(user=user)
+
     # Get or create entry for this user+raffle combination
     entry, created = Entry.objects.get_or_create(
         user=user,
         raffle=raffle,
-        defaults={'quantity': product.entries_per_product}
+        defaults={'quantity': product.entries_per_product, 'quantity_bonus': bonus_entries}
     )
     
     if not created:
         # Atomically increment quantity using F() expression to prevent race conditions
         Entry.objects.filter(id=entry.id).update(
-            quantity=F('quantity') + product.entries_per_product
+            quantity=F('quantity') + product.entries_per_product,
+            quantity_bonus=F('quantity_bonus') + bonus_entries
         )
         entry.refresh_from_db()
+
+    # Get rid of all coupons
+    delete_user_coupons(user)
     
     # Check if unlockable raffle has reached min_entries
     check_raffle_min_entries(raffle)

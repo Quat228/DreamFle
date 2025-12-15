@@ -1,5 +1,4 @@
 from django.db import models
-from django.conf import settings
 
 from users.models import User
 from products.models import Product
@@ -33,11 +32,17 @@ class Coupon(models.Model):
     type = models.CharField(max_length=20, choices=TYPES)
     entries = models.PositiveIntegerField()
 
+    def __str__(self):
+        return f"{self.type} {self.entries}"
+
 
 class UserCoupon(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="coupons")
     coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE, related_name="users")
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.coupon} - {self.created_at}"
 
 
 class ProductPurchase(models.Model):
@@ -45,3 +50,6 @@ class ProductPurchase(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="product_purchases")
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.product} - {self.amount}"

@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { userAPI } from '../services/api';
+import { userAPI, couponAPI } from '../services/api';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import './Profile.css';
 
 export default function Profile() {
+  const navigate = useNavigate();
   const { user, loading: authLoading, refreshUser } = useAuth();
   const [referrals, setReferrals] = useState([]);
   const [loadingReferrals, setLoadingReferrals] = useState(false);
+  const [coupons, setCoupons] = useState([]);
+  const [loadingCoupons, setLoadingCoupons] = useState(false);
 
   useEffect(() => {
     if (user) {
       loadReferrals();
+      loadCoupons();
     }
   }, [user]);
 
@@ -25,6 +30,18 @@ export default function Profile() {
       console.error('Error loading referrals:', error);
     } finally {
       setLoadingReferrals(false);
+    }
+  };
+
+  const loadCoupons = async () => {
+    try {
+      setLoadingCoupons(true);
+      const data = await couponAPI.getMyCoupons();
+      setCoupons(data);
+    } catch (error) {
+      console.error('Error loading coupons:', error);
+    } finally {
+      setLoadingCoupons(false);
     }
   };
 
@@ -117,6 +134,41 @@ export default function Profile() {
           </div>
         </Card>
       )}
+
+      <Card>
+        <h3>My Coupons</h3>
+        {loadingCoupons ? (
+          <div className="loading">Loading coupons...</div>
+        ) : coupons.length === 0 ? (
+          <div className="empty-state">
+            <p>You don't have any coupons yet</p>
+            <p className="empty-hint">Earn coupons by participating in raffles!</p>
+          </div>
+        ) : (
+          <div className="coupons-list">
+            {coupons.map((userCoupon) => (
+              <div
+                key={userCoupon.id}
+                className="coupon-item"
+                onClick={() => navigate(`/coupon/${userCoupon.coupon.id}`)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="coupon-icon">🎫</div>
+                <div className="coupon-info">
+                  <span className="coupon-name">{userCoupon.coupon.name}</span>
+                  <span className="coupon-details">
+                    +{userCoupon.coupon.entries} bonus entries • {userCoupon.coupon.type_display}
+                  </span>
+                  <span className="coupon-date">
+                    Received {new Date(userCoupon.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="coupon-arrow">→</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
 
       <div className="profile-actions">
         <Button

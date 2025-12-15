@@ -10,6 +10,7 @@ import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import MyEntries from './pages/MyEntries';
 import Profile from './pages/Profile';
+import CouponDetail from './pages/CouponDetail';
 import CRMLogin from './pages/crm/CRMLogin';
 import CRMHome from './pages/crm/CRMHome';
 import CRMRafflesList from './pages/crm/CRMRafflesList';
@@ -62,6 +63,7 @@ function AppRoutes() {
       <Route path="/product/:id" element={<ProductDetail />} />
       <Route path="/entries" element={<MyEntries />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/coupon/:id" element={<CouponDetail />} />
     </Routes>
   );
 }

@@ -91,7 +91,15 @@ def select_winner(raffle):
     entry_metadata = []  # Track which original entry each weighted entry belongs to
     
     for entry in entries:
+
         for _ in range(entry.quantity):
+            weighted_entries.append(entry)
+            entry_metadata.append({
+                'original_entry_id': entry.id,
+                'user_id': entry.user.id,
+            })
+
+        for _ in range(entry.quantity_bonus):
             weighted_entries.append(entry)
             entry_metadata.append({
                 'original_entry_id': entry.id,
@@ -105,8 +113,8 @@ def select_winner(raffle):
     entry_ids = sorted([str(entry.id) for entry in entries])
     entry_ids_string = ",".join(entry_ids)
     
-    # Combine seed + entry IDs + quantities for transparency
-    quantities_info = ",".join([f"{e.id}:{e.quantity}" for e in entries])
+    # Combine seed + entry IDs + quantities (including bonus) for transparency
+    quantities_info = ",".join([f"{e.id}:{e.quantity}:{e.quantity_bonus}" for e in entries])
     combined_string = f"{raffle.winner_selection_seed}:{entry_ids_string}:{quantities_info}"
     
     # Generate SHA256 hash
@@ -142,8 +150,8 @@ def select_winner(raffle):
 
     UserCoupon.objects.bulk_create(objects_to_create)
     
-    # Calculate total entries (sum of quantities)
-    total_entries_count = sum(entry.quantity for entry in entries)
+    # Calculate total entries (sum of quantities + bonus entries)
+    total_entries_count = sum(entry.quantity + entry.quantity_bonus for entry in entries)
     
     return {
         "winner": winner,
@@ -153,7 +161,7 @@ def select_winner(raffle):
         "selection_index": selection_index,
         "total_entries": total_entries_count,
         "total_entry_records": len(entries),
-        "entry_quantities": {str(e.id): e.quantity for e in entries},
+        "entry_quantities": {str(e.id): e.quantity + e.quantity_bonus for e in entries},
     }
 
 

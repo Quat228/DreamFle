@@ -10,6 +10,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 from core.telegram_auth import parse_and_validate_init_data
 from rest_framework_simplejwt.tokens import RefreshToken
+from payments.services import get_user_bonus_entries
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -81,6 +82,7 @@ class TelegramAuthView(APIView):
                 "id": user.id,
                 "telegram_id": user.telegram_id,
                 "username": user.username,
+                "bonus_entries": get_user_bonus_entries(user=user),
             }
         })
 

@@ -77,7 +77,9 @@ export default function ProductDetail() {
       return;
     }
 
-    if (!confirm(`Purchase ${product.name} and receive ${product.entries_per_product} entries?`)) {
+    const totalEntries = product.entries_per_product + (user.bonus_entries || 0);
+    const bonusText = user.bonus_entries > 0 ? ` (${product.entries_per_product} base + ${user.bonus_entries} bonus)` : '';
+    if (!confirm(`Purchase ${product.name} and receive ${totalEntries} entries${bonusText}?`)) {
       return;
     }
 
@@ -180,6 +182,12 @@ export default function ProductDetail() {
             <span className="info-label">Entries per Product</span>
             <span className="info-value">+{product.entries_per_product} entries</span>
           </div>
+          {user && user.bonus_entries > 0 && (
+            <div className="info-item">
+              <span className="info-label">Bonus Entries</span>
+              <span className="info-value">+{user.bonus_entries} entries</span>
+            </div>
+          )}
         </div>
       </Card>
 

@@ -58,6 +58,7 @@ class Entry(models.Model):
     user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="entries")
     raffle = models.ForeignKey(Raffle, on_delete=models.CASCADE, related_name="entries")
     quantity = models.PositiveIntegerField(default=1, help_text="Number of entries this record represents")
+    quantity_bonus = models.PositiveIntegerField(default=0, help_text="Number of bonus entries this record represents")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

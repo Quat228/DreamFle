@@ -73,11 +73,11 @@ class RaffleTransparencyAPIView(APIView):
                 "message": "Raffle has not finished yet. Transparency data will be available after winner selection.",
             })
         
-        # Get all entries with their quantities
+        # Get all entries with their quantities (including bonus entries)
         entries = list(raffle.entries.all().order_by('id'))
         entry_ids = [str(entry.id) for entry in entries]
-        entry_quantities = {str(entry.id): entry.quantity for entry in entries}
-        total_entries = sum(entry.quantity for entry in entries)
+        entry_quantities = {str(entry.id): entry.quantity + entry.quantity_bonus for entry in entries}
+        total_entries = sum(entry.quantity + entry.quantity_bonus for entry in entries)
         
         # Build transparency data
         transparency_data = {
@@ -93,9 +93,9 @@ class RaffleTransparencyAPIView(APIView):
             "entry_ids": entry_ids,
             "entry_quantities": entry_quantities,
             "verification_instructions": {
-                "step1": "Combine seed, entry IDs, and quantities: seed + ','.join(sorted_entry_ids) + ':' + ','.join(entry_id:quantity)",
+                "step1": "Combine seed, entry IDs, quantities, and bonus: seed + ','.join(sorted_entry_ids) + ':' + ','.join(entry_id:quantity:quantity_bonus)",
                 "step2": "Generate SHA256 hash of the combined string",
-                "step3": "Expand entries by quantity (each entry appears quantity times in selection pool)",
+                "step3": "Expand entries by quantity + quantity_bonus (each entry appears quantity + quantity_bonus times in selection pool)",
                 "step4": "Convert hash to integer: int(hash, 16) % total_entries",
                 "step5": "Select entry at that index from expanded entry list",
                 "step6": "Verify the selected entry matches the winner",
