@@ -147,6 +147,18 @@ export const raffleAPI = {
     const response = await api.get('/lottery/raffles/previous/');
     return response.data;
   },
+  getLiveRaffleStatus: async (id) => {
+    const response = await api.get(`/lottery/raffles/${id}/live/`);
+    return response.data;
+  },
+  getActiveRaffleState: async () => {
+    const response = await api.get('/lottery/active-raffle/state/');
+    return response.data;
+  },
+  getActiveRaffleState: async () => {
+    const response = await api.get('/lottery/active-raffle/state/');
+    return response.data;
+  },
 };
 
 // Product API

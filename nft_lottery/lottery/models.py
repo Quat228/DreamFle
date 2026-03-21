@@ -11,6 +11,13 @@ RAFFLE_TYPES = (
         ("progressive", "Progressive prize"),
     )
 
+RAFFLE_STATUSES = (
+    ("OPEN", "Open"),
+    ("COUNTDOWN", "Countdown"),
+    ("FINISHING", "Finishing"),
+    ("FINISHED", "Finished"),
+)
+
 def generate_seed():
     return secrets.token_hex(32)
 
@@ -32,6 +39,7 @@ class Raffle(models.Model):
     min_entries_to_unlock = models.PositiveIntegerField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_finished = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=RAFFLE_STATUSES, default="OPEN")
     start_at = models.DateTimeField(null=True, blank=True)
     end_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

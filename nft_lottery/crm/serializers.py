@@ -30,5 +30,6 @@ class RaffleStartTimeUpdateResponseSerializer(serializers.Serializer):
     new_start_at = serializers.DateTimeField()
     task_rescheduled = serializers.BooleanField()
     task_info = serializers.DictField(required=False, allow_null=True)
+    notify_task_info = serializers.DictField(required=False, allow_null=True)
     message = serializers.CharField()
 

@@ -162,6 +162,23 @@ class UpdateRaffleStartTimeView(APIView):
             result = update_raffle_start_time(raffle, new_start_at)
             
             # Prepare response
+            notify_rescheduled = result.get('notify_task_info') is not None
+            task_message = []
+            if result['task_rescheduled']:
+                task_message.append("Winner selection task rescheduled")
+            if notify_rescheduled:
+                notify_info = result.get('notify_task_info', {})
+                if notify_info.get('rescheduled'):
+                    task_message.append("Notification task rescheduled")
+                elif notify_info.get('created_new'):
+                    task_message.append("Notification task created")
+            
+            message_text = "Raffle start time updated successfully."
+            if task_message:
+                message_text += " " + ". ".join(task_message) + "."
+            else:
+                message_text += " No tasks found to reschedule."
+            
             response_data = {
                 'raffle_id': raffle.id,
                 'raffle_name': raffle.name,
@@ -169,10 +186,8 @@ class UpdateRaffleStartTimeView(APIView):
                 'new_start_at': result['new_start_at'],
                 'task_rescheduled': result['task_rescheduled'],
                 'task_info': result.get('task_info'),
-                'message': (
-                    f"Raffle start time updated successfully. "
-                    f"Task {'rescheduled' if result['task_rescheduled'] else 'not found or already completed'}."
-                )
+                'notify_task_info': result.get('notify_task_info'),
+                'message': message_text
             }
             
             response_serializer = RaffleStartTimeUpdateResponseSerializer(data=response_data)

@@ -6,3 +6,7 @@ urlpatterns = [
     path("coupons/<int:id>/", CouponDetailAPIView.as_view(), name="coupon-detail"),
 ]
 
+
+
+
+

@@ -6,6 +6,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 class ScheduledTask(models.Model):
     TASK_TYPES = (
         ('select_winner', 'Select Winner'),
+        ('notify_starting', 'Notify Raffle Starting'),
         # Add more task types as needed in the future
     )
     

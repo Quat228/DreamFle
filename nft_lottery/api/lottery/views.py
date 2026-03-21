@@ -1,9 +1,11 @@
+from datetime import timedelta
 from django.db.models import Q
 from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from django.utils import timezone
 
 from lottery.models import Raffle, Entry
 
@@ -126,4 +128,110 @@ class RaffleTransparencyAPIView(APIView):
             }
         
         return Response(transparency_data)
+
+
+class ActiveRaffleStateAPIView(APIView):
+    """
+    GET /api/lottery/active-raffle/state
+    Returns global state for active raffle (used for popup on all pages).
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        now = timezone.now()
+        
+        # Find active raffle that is in COUNTDOWN, FINISHING, or FINISHED status
+        # Priority: FINISHING > COUNTDOWN > FINISHED
+        raffle = None
+        
+        # Check for FINISHING first
+        raffle = Raffle.objects.filter(
+            is_active=True,
+            status__in=["FINISHING", "FINISHED"],
+            start_at__lte=now
+        ).order_by('-start_at').first()
+        
+        # If no FINISHING/FINISHED, check for COUNTDOWN
+        if not raffle:
+            raffle = Raffle.objects.filter(
+                is_active=True,
+                status="COUNTDOWN",
+                start_at__isnull=False
+            ).order_by('-start_at').first()
+        
+        if not raffle:
+            return Response({"active": False})
+        
+        # Calculate seconds left until start (for COUNTDOWN) or since start (for FINISHING/FINISHED)
+        if raffle.start_at:
+            if raffle.status == "COUNTDOWN":
+                seconds_left = max(0, int((raffle.start_at - now).total_seconds()))
+            else:
+                # For FINISHING/FINISHED, show 0 or negative
+                seconds_left = int((raffle.start_at - now).total_seconds())
+        else:
+            seconds_left = 0
+        
+        return Response({
+            "active": True,
+            "raffle_id": raffle.id,
+            "status": raffle.status,
+            "seconds_left": seconds_left,
+            "live_url": f"/raffle/{raffle.id}/live"
+        })
+
+
+class RaffleLiveAPIView(APIView):
+    """
+    GET /api/lottery/raffles/<id>/live/
+    Returns live raffle status for the winner selection page.
+    Status-based response format.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id):
+        try:
+            raffle = (Raffle.objects.select_related('prize', 'type', 'winner', 'winner__user', 'winner__entry')
+                      .prefetch_related('entries').get(id=id))
+        except Raffle.DoesNotExist:
+            return Response(
+                {"detail": "Raffle not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Get all entries with their quantities
+        entries = list(raffle.entries.all().order_by('id'))
+        entry_ids = [str(entry.id) for entry in entries]
+        entry_quantities = {str(entry.id): entry.quantity + entry.quantity_bonus for entry in entries}
+        
+        # Prepare entries list for response
+        entries_data = [
+            {
+                "id": str(entry.id),
+                "quantity": entry.quantity + entry.quantity_bonus
+            }
+            for entry in entries
+        ]
+        
+        # Prepare response based on status
+        response_data = {
+            "status": raffle.status,
+            "raffle_id": raffle.id,
+            "raffle_name": raffle.name,
+            "entries": entries_data,
+            "entry_ids": entry_ids,
+            "entry_quantities": entry_quantities,
+        }
+        
+        # Add winner information if available
+        if raffle.status in ["FINISHING", "FINISHED"] and hasattr(raffle, 'winner') and raffle.winner:
+            response_data["winner"] = {
+                "entry_id": str(raffle.winner.entry.id) if raffle.winner.entry else None,
+                "user": raffle.winner.user.username,
+                "user_id": raffle.winner.user.id,
+            }
+        else:
+            response_data["winner"] = None
+        
+        return Response(response_data)
 

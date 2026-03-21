@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Third-party
+    "channels",
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
@@ -121,6 +122,21 @@ CELERY_BEAT_SCHEDULE = {
     'check-unlocked-raffles': {
         'task': 'lottery.tasks.check_unlocked_raffles',
         'schedule': 300.0,  # Every 5 minutes
+    },
+}
+
+# ----------------------------------------------------
+# CHANNELS (WebSocket)
+# ----------------------------------------------------
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+            "capacity": 1500,
+            "expiry": 10,
+        },
     },
 }
 

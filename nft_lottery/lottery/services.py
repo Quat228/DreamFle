@@ -30,9 +30,9 @@ def check_raffle_min_entries(raffle):
             raffle.save(update_fields=['unlocked_at', 'start_at'])
 
             # Import here to avoid circular import at module load time
-            from lottery.tasks import select_raffle_winner
+            from lottery.tasks import select_raffle_winner, notify_raffle_starting
 
-            # Create ScheduledTask and schedule Celery task
+            # Create ScheduledTask and schedule Celery task for winner selection
             created_task = create_scheduled_task(
                 related_object=raffle,
                 task_type="select_winner",
@@ -40,6 +40,17 @@ def check_raffle_min_entries(raffle):
                 celery_task_func=select_raffle_winner,
                 task_args=[raffle.id],
             )
+
+            # Schedule notification task 5 minutes before start_at
+            notify_time = raffle.start_at - timedelta(minutes=5)
+            if notify_time > now:
+                create_scheduled_task(
+                    related_object=raffle,
+                    task_type="notify_starting",
+                    scheduled_for=notify_time,
+                    celery_task_func=notify_raffle_starting,
+                    task_args=[raffle.id],
+                )
 
     return created_task, created_task is not None
 
@@ -134,11 +145,14 @@ def select_winner(raffle):
     # Update raffle with selection details
     raffle.is_active = False
     raffle.is_finished = True
+    raffle.status = "FINISHING"  # Will be set to FINISHED by the task
     raffle.end_at = now
     raffle.winner_selection_hash = selection_hash
     raffle.winner_selection_timestamp = now
-    raffle.save(update_fields=['is_active', 'is_finished', 'end_at', 'winner_selection_hash',
+    raffle.save(update_fields=['is_active', 'is_finished', 'status', 'end_at', 'winner_selection_hash',
                                'winner_selection_timestamp', 'winner_selection_seed'])
+
+    # WebSocket removed - using polling instead
 
     # Give coupon bonus for all participants except for winner
     coupon = Coupon.objects.get(type="lost")
